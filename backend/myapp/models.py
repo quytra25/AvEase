@@ -111,13 +111,13 @@ class Participant(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"{self.user.username} → {self.event.name}"
+        return f"{self.user.email} → {self.event.name}"
     
 
 # Availability model
 class Availability(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    participant = models.ForeignKey('Participant', on_delete=models.CASCADE)
+    participant = models.ForeignKey('Participant', on_delete=models.CASCADE, related_name='availabilities')
     availability_type = models.CharField(
         max_length=15,
         choices=[
@@ -133,7 +133,7 @@ class Availability(models.Model):
 
 # Availability subclasses
 class AvailabilityInTheWeek(Availability):
-    selected_day = models.CharField(max_length=10)
+    selected_day = models.CharField(max_length=9)
     selected_start_time = models.TimeField()
     selected_end_time = models.TimeField()
 
