@@ -60,3 +60,49 @@ class Event(models.Model):
     def __str__(self):
         return self.name
 
+
+# Participant model
+class Participant(models.Model):
+    user = models.ForeignKey('CustomUser', on_delete=models.CASCADE)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.user.username} → {self.event.name}"
+    
+
+# Availability model
+class Availability(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    participant = models.ForeignKey('Participant', on_delete=models.CASCADE)
+    availability_type = models.CharField(
+        max_length=15,
+        choices=[
+            ('weekly', 'Weekly'),
+            ('date_time', 'Date & Time'),
+            ('date_only', 'Date Only'),
+            ('rsvp', 'RSVP Status')
+        ]
+    )
+
+    def __str__(self):
+        return f"{self.user.email} ({self.availability_type})"
+
+# Availability subclasses
+class AvailabilityInTheWeek(Availability):
+    day = models.CharField(max_length=10)
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+
+class AvailableDateTime(Availability):
+    date = models.DateField()
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+
+class AvailableDate(Availability):
+    date = models.DateField()
+
+class AvailabilityStatus(Availability):
+    status = models.CharField(
+        max_length=15,
+        choices=[('available', 'Available'), ('unavailable', 'Unavailable'), ('tentative', 'Tentative'), ('no_response', 'No Response')]
+    )
