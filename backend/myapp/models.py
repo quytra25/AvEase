@@ -39,11 +39,8 @@ class CustomUser(AbstractUser):
 # Event model
 class Event(models.Model):
     event_type = [
-        ('weekly', 'Weekly'),
-        ('single', 'Single-Day'),
-        ('multi', 'Multi-Day'),
-        ('rsvp_single', 'RSVP Single-Day'),
-        ('rsvp_multi', 'RSVP Multi-Day'),
+        ('availability_match', 'Availability Match'),
+        ('rsvp_based', 'RSVP Based'),
     ]
 
     name = models.CharField(max_length=255)
@@ -59,6 +56,53 @@ class Event(models.Model):
 
     def __str__(self):
         return self.name
+
+# Event subclasses
+class AvailabilityMatchEvent(Event):
+    pass
+
+class RsvpBasedEvent(Event):
+    pass
+
+class WeeklyEvent(AvailabilityMatchEvent):
+    mon_selected = models.BooleanField(default=False)
+    tue_selected = models.BooleanField(default=False)
+    wed_selected = models.BooleanField(default=False)
+    thur_selected = models.BooleanField(default=False)
+    fri_selected = models.BooleanField(default=False)
+    sat_selected = models.BooleanField(default=False)
+    sun_selected = models.BooleanField(default=False)
+    start_time = models.TimeField(null=True, blank=True)
+    end_time = models.TimeField(null=True, blank=True)
+
+class SingleDayEvent(AvailabilityMatchEvent):
+    start_date_range = models.DateField()
+    end_date_range = models.DateField()
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+    is_all_day = models.BooleanField(default=False)
+    confirmed_date = models.DateField()
+    confirmed_start_time = models.TimeField(null=True, blank=True)
+    confirmed_end_time = models.TimeField(null=True, blank=True)
+
+class MultiDayEvent(AvailabilityMatchEvent):
+    num_days = models.IntegerField()
+    start_date_range = models.DateField()
+    end_date_range = models.DateField()
+    confirmed_start_date = models.DateField(null=True, blank=True)
+    confirmed_end_date = models.DateField(null=True, blank=True)
+
+class RsvpSingleDayEvent(RsvpBasedEvent):
+    date = models.DateField()
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+    is_all_day = models.BooleanField(default=False)
+
+class RsvpMultiDayEvent(RsvpBasedEvent):
+    start_date = models.DateField()
+    end_date = models.DateField()
+    start_time = models.TimeField()
+    end_time = models.TimeField()
 
 
 # Participant model
@@ -89,20 +133,20 @@ class Availability(models.Model):
 
 # Availability subclasses
 class AvailabilityInTheWeek(Availability):
-    day = models.CharField(max_length=10)
-    start_time = models.TimeField()
-    end_time = models.TimeField()
+    selected_day = models.CharField(max_length=10)
+    selected_start_time = models.TimeField()
+    selected_end_time = models.TimeField()
 
 class AvailableDateTime(Availability):
-    date = models.DateField()
-    start_time = models.TimeField()
-    end_time = models.TimeField()
+    selected_date = models.DateField()
+    selected_start_time = models.TimeField()
+    selected_end_time = models.TimeField()
 
 class AvailableDate(Availability):
-    date = models.DateField()
+    selected_date = models.DateField()
 
 class AvailabilityStatus(Availability):
-    status = models.CharField(
+    rsvp_status = models.CharField(
         max_length=15,
         choices=[('available', 'Available'), ('unavailable', 'Unavailable'), ('tentative', 'Tentative'), ('no_response', 'No Response')]
     )
