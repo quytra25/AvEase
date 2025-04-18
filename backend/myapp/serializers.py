@@ -5,6 +5,11 @@ class EventSerializer(serializers.ModelSerializer):
     class Meta:
         model = Event
         fields = '__all__'
+    
+class EventDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Event
+        fields = ['id', 'name', 'description', 'type', 'link']  # updated here
 
 class ParticipantSerializer(serializers.ModelSerializer):
     class Meta:

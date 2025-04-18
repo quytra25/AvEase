@@ -1,8 +1,9 @@
+from rest_framework import generics
 from django.http import HttpResponse, HttpRequest, JsonResponse
 from django.shortcuts import render
 from rest_framework import viewsets
 from .models import Event, Participant, Availability, AvailabilityInTheWeek, AvailableDateTime, AvailableDate
-from .serializers import EventSerializer, ParticipantSerializer, AvailabilitySerializer, AvailabilityInTheWeekSerializer, AvailableDateTimeSerializer, AvailableDateSerializer
+from .serializers import EventSerializer, ParticipantSerializer, AvailabilitySerializer, AvailabilityInTheWeekSerializer, AvailableDateTimeSerializer, AvailableDateSerializer, EventDetailSerializer
 
 class EventViewSet(viewsets.ModelViewSet):
     queryset = Event.objects.all()
@@ -27,6 +28,11 @@ class AvailableDateTimeViewSet(viewsets.ModelViewSet):
 class AvailableDateViewSet(viewsets.ModelViewSet):
     queryset = AvailableDate.objects.all()
     serializer_class = AvailableDateSerializer
+
+class EventByLinkView(generics.RetrieveAPIView):
+    queryset = Event.objects.all()
+    serializer_class = EventDetailSerializer
+    lookup_field = 'link'
 
 def home(request):
     return HttpResponse("Hello World!")

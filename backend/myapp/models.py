@@ -2,6 +2,7 @@ from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.base_user import BaseUserManager
+import uuid
 
 # User manager
 class CustomUserManager(BaseUserManager):
@@ -47,7 +48,7 @@ class Event(models.Model):
     type = models.CharField(max_length=20, choices=event_type)
     description = models.TextField(blank=True)
     location = models.CharField(max_length=255, blank=True)
-    link = models.URLField(blank=True)
+    link = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     coordinator = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
