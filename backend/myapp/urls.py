@@ -1,20 +1,9 @@
-from django.conf import settings
-from django.contrib import admin
-from django.urls import path, include
-from django.http import HttpResponse
-from . import views
 from rest_framework.routers import DefaultRouter
-from .views import EventViewSet, ParticipantViewSet, AvailabilityViewSet, AvailabilityInTheWeekViewSet, AvailableDateTimeViewSet, AvailableDateViewSet
+from .views import EventViewSet, ParticipantViewSet, AvailabilityViewSet
 
 router = DefaultRouter()
-router.register(r'events', EventViewSet)
-router.register(r'participants', ParticipantViewSet)
-router.register(r'availabilities', AvailabilityViewSet)
-router.register(r'availabilities/weekly', AvailabilityInTheWeekViewSet)
-router.register(r'availabilities/datetime', AvailableDateTimeViewSet)
-router.register(r'availabilities/date', AvailableDateViewSet)
+router.register(r'events', EventViewSet, basename='event')
+router.register(r'participants', ParticipantViewSet, basename='participant')
+router.register(r'availabilities', AvailabilityViewSet, basename='availability')
 
-urlpatterns = [
-    path('', views.home, name='home'),
-    path('api/', include(router.urls)),
-]
+urlpatterns = router.urls
