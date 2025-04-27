@@ -1,17 +1,15 @@
-import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
-import tailwind from '@tailwindcss/vite'
-import path from 'path'
+import { defineConfig } from 'vite';
+import vue from '@vitejs/plugin-vue';
 
 export default defineConfig({
-  plugins: [
-    vue(),
-    tailwind(),
-  ],
-  resolve: {
-    alias: {
-      // Now @ maps to your src folder
-      '@': path.resolve(__dirname, 'src'),
+  plugins: [vue()],
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, '/api'),
+      },
     },
   },
-})
+});
