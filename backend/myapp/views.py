@@ -1,38 +1,57 @@
-from rest_framework import generics
-from django.http import HttpResponse, HttpRequest, JsonResponse
-from django.shortcuts import render
-from rest_framework import viewsets
-from .models import Event, Participant, Availability, AvailabilityInTheWeek, AvailableDateTime, AvailableDate
-from .serializers import EventSerializer, ParticipantSerializer, AvailabilitySerializer, AvailabilityInTheWeekSerializer, AvailableDateTimeSerializer, AvailableDateSerializer, EventDetailSerializer
+from rest_framework import viewsets, permissions
+from django.db import models
+from django.core.exceptions import PermissionDenied
+from .models import Event, Participant, Availability
+from .serializers import (
+    EventSerializer, EventDetailSerializer, ParticipantSerializer, ParticipantGuestSerializer, AvailabilitySerializer
+)
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
 class EventViewSet(viewsets.ModelViewSet):
     queryset = Event.objects.all()
-    serializer_class = EventSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_serializer_class(self):
+        if self.action == 'retrieve':
+            return EventDetailSerializer
+        return EventSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        return Event.objects.filter(
+            models.Q(coordinator=user) | models.Q(participant__user=user)
+        ).distinct()
+
+    def perform_update(self, serializer):
+        event = self.get_object()
+        if event.coordinator != self.request.user:
+            raise PermissionDenied("Only the coordinator can edit this event.")
+        serializer.save()
 
 class ParticipantViewSet(viewsets.ModelViewSet):
     queryset = Participant.objects.all()
     serializer_class = ParticipantSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        # auto‐assign the user
+        serializer.save(user=self.request.user)
+
+    @action(detail=False, methods=['post'], url_path='guest')
+    def join_guest(self, request):
+        ser = ParticipantGuestSerializer(data=request.data)
+        ser.is_valid(raise_exception=True)
+        p = ser.save()
+        return Response({'id': p.id})
 
 class AvailabilityViewSet(viewsets.ModelViewSet):
     queryset = Availability.objects.all()
     serializer_class = AvailabilitySerializer
+    permission_classes = [permissions.IsAuthenticated]
 
-class AvailabilityInTheWeekViewSet(viewsets.ModelViewSet):
-    queryset = AvailabilityInTheWeek.objects.all()
-    serializer_class = AvailabilityInTheWeekSerializer
-
-class AvailableDateTimeViewSet(viewsets.ModelViewSet):
-    queryset = AvailableDateTime.objects.all()
-    serializer_class = AvailableDateTimeSerializer
-
-class AvailableDateViewSet(viewsets.ModelViewSet):
-    queryset = AvailableDate.objects.all()
-    serializer_class = AvailableDateSerializer
-
-class EventByLinkView(generics.RetrieveAPIView):
-    queryset = Event.objects.all()
-    serializer_class = EventDetailSerializer
-    lookup_field = 'link'
-
-def home(request):
-    return HttpResponse("Hello World!")
+    def perform_create(self, serializer):
+        participant = serializer.validated_data['participant']
+        if participant.user != self.request.user:
+            raise PermissionDenied("Can't set someone else's availability.")
+        serializer.save()
