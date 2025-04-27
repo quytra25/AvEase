@@ -16,10 +16,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from myapp.views import EventByLinkView
+from django.views.generic import RedirectView
 
 urlpatterns = [
+    path('', RedirectView.as_view(url='api/')), # Redirects to http://127.0.0.1:8000/api/
     path('admin/', admin.site.urls),
-    path('events/<uuid:link>/', EventByLinkView.as_view(), name='event-by-link'),
-    path('', include('myapp.urls'))
+    path('api/', include('myapp.urls')),
+    path('api-auth/', include('rest_framework.urls')),
 ]
