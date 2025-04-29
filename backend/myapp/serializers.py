@@ -19,10 +19,29 @@ class EventSerializer(serializers.ModelSerializer):
     class Meta:
         model = Event
         fields = [
-            'id', 'name', 'description', 'type', 'location', 'coordinator', 'link'
+            'id', 'name', 'description', 'type', 'sub_type' 'location', 'coordinator', 'link', 'is_all_day', 'start_date_range', 'end_date_range', 'start_time', 'end_time',
         ]
         read_only_fields = ['id', 'link']
 
+# EventDetail with nested participants
+class EventDetailSerializer(serializers.ModelSerializer):
+    participants = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Event
+        fields = [
+            'id', 'name', 'description', 'type', 'sub_type', 'link', 'is_all_day',
+            # availability-match fields
+            'start_date_range', 'end_date_range', 'start_time', 'end_time',
+            # RSVP-based fields
+            'date', 'start_date', 'end_date',
+            'participants'
+        ]
+        read_only_fields = fields
+
+    def get_participants(self, obj):
+        from .serializers import ParticipantSerializer
+        return ParticipantSerializer(obj.participant_set.all(), many=True).data
 
 # Detailed Event view: includes participants + availabilities
 class AvailabilityInTheWeekSerializer(serializers.ModelSerializer):
@@ -68,11 +87,13 @@ class AvailabilitySerializer(serializers.ModelSerializer):
 class ParticipantSerializer(serializers.ModelSerializer):
     # includes nested availabilities
     availabilities = AvailabilitySerializer(many=True, read_only=True)
+    user_first_name = serializers.CharField(source='user.first_name', read_only=True)
+    user_last_name = serializers.CharField(source='user.last_name', read_only=True)
 
     class Meta:
         model = Participant
-        fields = ['id', 'user', 'event', 'availabilities']
-        read_only_fields = ['id']
+        fields = ['id', 'user', 'user_first_name', 'user_last_name', 'event', 'availabilities']
+        read_only_fields = ['id', 'user', 'user_first_name', 'user_last_name']
 
     def create(self, validated_data):
         # automatically assign the logged-in user
@@ -83,7 +104,7 @@ class ParticipantGuestSerializer(serializers.ModelSerializer):
     guest_name = serializers.CharField(write_only=True)
 
     class Meta:
-        model  = Participant
+        model = Participant
         fields = ['id','event','guest_name']
         read_only_fields = ['id']
 
@@ -96,15 +117,3 @@ class ParticipantGuestSerializer(serializers.ModelSerializer):
             defaults={'is_registered': False}
         )
         return Participant.objects.create(user=user, **validated_data)
-
-
-# EventDetail with nested participants
-class EventDetailSerializer(serializers.ModelSerializer):
-    participants = ParticipantSerializer(many=True, read_only=True, source='participant_set')
-
-    class Meta:
-        model = Event
-        fields = [
-            'id', 'name', 'description', 'type', 'link', 'participants'
-        ]
-        read_only_fields = ['id', 'link', 'participants']
