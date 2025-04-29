@@ -1,37 +1,30 @@
 <template>
-    <div class="home">
-        <h1>Create a new event</h1>
+    <div class="max-w-md mx-auto mt-8 p-6 bg-white shadow rounded">
+        <div class="home">
+            <h1 class="text-2xl font-bold mb-4">Create a new event</h1>
 
-        <!-- Step 1: Choose main flow -->
-        <div v-if="step === 1">
-            <h2>1. Choose event type:</h2>
-            <button @click="selectFlow('availability_match')">Availability Match</button>
-            <button @click="selectFlow('rsvp_based')">RSVP‑Based</button>
-        </div>
+            <!-- Step 1: Choose main flow -->
+            <div v-if="step === 1" class="space-y-4">
+                <h2>1. Choose event type:</h2>
+                <button class="w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700" @click="selectFlow('availability_match')">Availability Match</button>
+                <button class="w-full py-2 bg-green-600 text-white rounded hover:bg-green-700" @click="selectFlow('rsvp_based')">RSVP‑Based</button>
+            </div>
 
-        <!-- Step 2: Choose sub‑type -->
-        <div v-if="step === 2">
-            <h2>2. Choose sub‑type:</h2>
-            <button
-            v-for="opt in subTypeOptions"
-            :key="opt.value"
-            @click="selectSubType(opt.value)"
-            >
-            {{ opt.label }}
-            </button>
-            <button @click="step = 1">‹ Back</button>
-        </div>
+            <!-- Step 2: Choose sub‑type -->
+            <div v-if="step === 2" class="space-y-4">
+                <h2>2. Choose sub‑type:</h2>
+                <button v-for="opt in subTypeOptions" :key="opt.value" @click="selectSubType(opt.value)">
+                {{ opt.label }}
+                </button>
+                <button @click="step = 1">‹ Back</button>
+            </div>
 
-        <!-- Step 3: Fill in the form -->
-        <div v-if="step === 3">
-            <h2>3. Enter details:</h2>
-            <!-- dynamic component based on flow+subType -->
-            <component
-            :is="currentFormComponent"
-            :formData="formData"
-            @submit="createEvent"
-            @back="step = 2"
-            />
+            <!-- Step 3: Fill in the form -->
+            <div v-if="step === 3" class="space-y-4">
+                <h2>3. Enter details:</h2>
+                <!-- dynamic component based on flow+subType -->
+                <component :is="currentFormComponent" :formData="formData" @submit="createEvent" @back="step = 2"/>
+            </div>
         </div>
     </div>
 </template>
