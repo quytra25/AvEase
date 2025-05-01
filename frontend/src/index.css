@@ -1,3 +1,159 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* ========== Base Styles ========== */
+
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #e6f3fc;
+    color: #1a1a1a;
+    margin: 0;
+    padding: 0;
+}
+
+/* ========== Navbar ========== */
+
+nav {
+    background-color: #1f4e79;
+    padding: 1rem;
+    display: flex;
+    justify-content: flex-start;
+    gap: 2rem;
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+nav a:hover {
+    text-decoration: underline;
+}
+
+/* ========== Form Container ========== */
+
+.event-form {
+    border-radius: 1rem;
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    max-width: 500px;
+    margin: 3rem auto;
+    padding: 2rem;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+}
+
+.form-title {
+    text-align: center;
+    font-size: 1.4rem;
+    margin-bottom: 1.5rem;
+    color: #1f3b57;
+}
+
+/* ========== Labels & Inputs ========== */
+
+.label {
+    display: block;
+    margin-top: 1rem;
+    margin-bottom: 0.25rem;
+    font-weight: 600;
+    color: #1a1a1a;
+}
+
+.input,
+.textarea {
+    width: 100%;
+    padding: 0.6rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background-color: #f9f9f9;
+    color: #333;
+    resize: none;
+    box-sizing: border-box;
+}
+
+/* ========== Day Buttons ========== */
+
+.day-selector {
+    display: flex;
+    gap: 4px;
+    margin-top: 0.5rem;
+    user-select: none;
+}
+
+.day-button {
+    flex: 1;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    background: #f0f0f0;
+    color: #333;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.day-button.active {
+    background-color: #86c5ff;
+    color: #fff;
+}
+
+/* ========== Time Row ========== */
+
+.time-row {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.time-row > div {
+    flex: 1;
+}
+
+/* ========== Submit Button ========== */
+
+.form-footer {
+    margin-top: 2rem;
+    text-align: center;
+}
+
+.button.is-success {
+    background-color: #88d8b0;
+    border: none;
+    padding: 0.7rem 1.5rem;
+    font-size: 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.button.is-success:hover {
+    background-color: #6bc49b;
+}
+
+/* ========== Character Counter ========== */
+
+.char-counter {
+    font-size: 0.85rem;
+    color: #666;
+    text-align: right;
+    margin-top: 0.25rem;
+}
+
+/* ========== Event Type Toggles ========== */
+.toggle-group {
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+  
+/* ========== Title ========== */
+.title {
+    color: #2c3e50; /* Replace with your preferred color */
+    text-align: center;
+    font-weight: 600;
+}
+  
