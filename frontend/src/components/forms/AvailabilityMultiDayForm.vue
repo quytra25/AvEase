@@ -1,26 +1,68 @@
 <template>
     <form @submit.prevent="submit">
-        <input v-model="local.name" placeholder="Name" required />
-        <input v-model="local.description" placeholder="Description" />
-        <input v-model="local.location" placeholder="Location" />
+        <h2 class="form-title">Multi-Day Availability Match</h2>
 
-        <label>
-            Number of Days
-            <input type="number" v-model="local.num_days" min="1" required />
-        </label>
+        <label class="label">Name *</label>
+        <input
+        v-model="local.name"
+        type="text"
+        required
+        class="input"
+        placeholder="Event name"
+        />
 
-        <label>
-            Start Date Range
-            <input type="date" v-model="local.start_date_range" required />
-        </label>
+        <label class="label">Description</label>
+        <textarea
+        v-model="local.description"
+        class="textarea"
+        placeholder="Optional details..."
+        maxlength="1000"
+        rows="1"
+        @input="autoResize"
+        ></textarea>
+        <div class="char-counter">{{ local.description.length }} / 1000</div>
 
-        <label>
-            End Date Range
-            <input type="date" v-model="local.end_date_range" required />
-        </label>
+        <label class="label">Location</label>
+        <input
+        v-model="local.location"
+        type="text"
+        class="input"
+        placeholder="e.g. Zoom, Café..."
+        />
 
-        <button type="button" @click="back">‹ Back</button>
-        <button type="submit">Create</button>
+        <label class="label">Number of Days *</label>
+        <input
+        v-model="local.num_days"
+        type="number"
+        min="1"
+        required
+        class="input"
+        />
+
+        <div class="date-row">
+            <div>
+                <label class="label">Start Date Range *</label>
+                <input
+                type="date"
+                v-model="local.start_date_range"
+                class="input"
+                required
+                />
+            </div>
+            <div>
+                <label class="label">End Date Range *</label>
+                <input
+                type="date"
+                v-model="local.end_date_range"
+                class="input"
+                required
+                />
+            </div>
+        </div>
+
+        <div class="form-footer">
+            <button type="submit" class="button is-success">Create</button>
+        </div>
     </form>
 </template>
 
@@ -28,17 +70,19 @@
 import { reactive, watch } from 'vue'
 
 const props = defineProps({ formData: Object })
-const emit = defineEmits(['submit', 'back'])
+const emit = defineEmits(['submit'])
 
 const local = reactive({ ...props.formData })
 
-watch(local, () => { Object.assign(props.formData, local) }, { deep: true })
+watch(local, () => Object.assign(props.formData, local), { deep: true })
+
+function autoResize(event) {
+    const el = event.target
+    el.style.height = 'auto'
+    el.style.height = el.scrollHeight + 'px'
+}
 
 function submit() {
     emit('submit', { ...props.formData })
-}
-
-function back() {
-    emit('back')
 }
 </script>

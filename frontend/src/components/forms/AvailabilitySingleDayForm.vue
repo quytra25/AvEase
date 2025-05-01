@@ -1,52 +1,105 @@
 <template>
     <form @submit.prevent="submit">
-        <input v-model="local.name" placeholder="Name" required />
-        <input v-model="local.description" placeholder="Description" />
-        <input v-model="local.location" placeholder="Location" />
-        <label>
-            Start Date Range
-            <input type="date" v-model="local.start_date_range" required />
-        </label>
-        <label>
-            End Date Range
-            <input type="date" v-model="local.end_date_range" required />
-        </label>
-        <label>
-            <input type="checkbox" v-model="local.is_all_day" /> All Day
-        </label>
+        <h2 class="form-title">Single-Day Availability Match</h2>
+
+        <label class="label">Name *</label>
         <input
-        v-if="!local.is_all_day"
-        type="time"
-        v-model="local.start_time"
+        v-model="local.name"
+        type="text"
         required
+        class="input"
+        placeholder="Event name"
         />
+
+        <label class="label">Description</label>
+        <textarea
+        v-model="local.description"
+        class="textarea"
+        placeholder="Optional details..."
+        maxlength="1000"
+        rows="1"
+        @input="autoResize"
+        ></textarea>
+        <div class="char-counter">{{ local.description.length }} / 1000</div>
+
+        <label class="label">Location</label>
         <input
-        v-if="!local.is_all_day"
-        type="time"
-        v-model="local.end_time"
-        required
+        v-model="local.location"
+        type="text"
+        class="input"
+        placeholder="e.g. Zoom, Café..."
         />
-        <button type="button" @click="back">‹ Back</button>
-        <button type="submit">Create</button>
+
+        <div class="date-row">
+            <div>
+                <label class="label">Start Date Range *</label>
+                <input
+                type="date"
+                v-model="local.start_date_range"
+                class="input"
+                required
+                />
+            </div>
+            <div>
+                <label class="label">End Date Range *</label>
+                <input
+                type="date"
+                v-model="local.end_date_range"
+                class="input"
+                required
+                />
+            </div>
+        </div>
+
+        <label class="checkbox-wrapper">
+            <input type="checkbox" v-model="local.is_all_day" />
+            Is an all-day event
+        </label>
+
+        <div v-if="!local.is_all_day" class="time-row">
+            <div>
+                <label class="label">Start time *</label>
+                <input
+                v-model="local.start_time"
+                type="time"
+                required
+                class="input"
+                />
+            </div>
+            <div>
+                <label class="label">End time *</label>
+                <input
+                v-model="local.end_time"
+                type="time"
+                required
+                class="input"
+                />
+            </div>
+        </div>
+
+        <div class="form-footer">
+            <button type="submit" class="button is-success">Create</button>
+        </div>
     </form>
 </template>
 
 <script setup>
 import { reactive, watch } from 'vue'
 
-const props = defineProps({
-    formData: Object
-})
-const emit = defineEmits(['submit', 'back'])
+const props = defineProps({ formData: Object })
+const emit = defineEmits(['submit'])
+
 const local = reactive({ ...props.formData })
 
 watch(local, () => Object.assign(props.formData, local), { deep: true })
 
-function submit() {
-    emit('submit', { ...props.formData })
+function autoResize(event) {
+    const el = event.target
+    el.style.height = 'auto'
+    el.style.height = el.scrollHeight + 'px'
 }
 
-function back() {
-    emit('back')
+function submit() {
+    emit('submit', { ...props.formData })
 }
 </script>

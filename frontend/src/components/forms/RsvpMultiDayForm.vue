@@ -1,24 +1,80 @@
 <template>
     <form @submit.prevent="submit">
-        <input v-model="local.name" placeholder="Name" required />
-        <input v-model="local.description" placeholder="Description" />
-        <input v-model="local.location" placeholder="Location" />
+        <h2 class="form-title">RSVP Multi-Day Event</h2>
 
-        <label>
-            Start Date
-            <input type="date" v-model="local.start_date" required />
-        </label>
+        <label class="label">Name *</label>
+        <input
+        v-model="local.name"
+        type="text"
+        required
+        class="input"
+        placeholder="Event name"
+        />
 
-        <label>
-            End Date
-            <input type="date" v-model="local.end_date" required />
-        </label>
+        <label class="label">Description</label>
+        <textarea
+        v-model="local.description"
+        class="textarea"
+        placeholder="Optional details..."
+        maxlength="1000"
+        rows="1"
+        @input="autoResize"
+        ></textarea>
+        <div class="char-counter">{{ local.description.length }} / 1000</div>
 
-        <input type="time" v-model="local.start_time" required />
-        <input type="time" v-model="local.end_time" required />
+        <label class="label">Location</label>
+        <input
+        v-model="local.location"
+        type="text"
+        class="input"
+        placeholder="e.g. Zoom, Café..."
+        />
 
-        <button type="button" @click="back">‹ Back</button>
-        <button type="submit">Create</button>
+        <div class="date-row">
+            <div>
+                <label class="label">Start Date</label>
+                <input
+                type="date"
+                v-model="local.start_date"
+                class="input"
+                required
+                />
+            </div>
+            <div>
+                <label class="label">End Date</label>
+                <input
+                type="date"
+                v-model="local.end_date"
+                class="input"
+                required
+                />
+            </div>
+        </div>
+
+        <div class="time-row">
+            <div>
+                <label class="label">Start time</label>
+                <input
+                v-model="local.start_time"
+                type="time"
+                required
+                class="input"
+                />
+            </div>
+            <div>
+                <label class="label">End time</label>
+                <input
+                v-model="local.end_time"
+                type="time"
+                required
+                class="input"
+                />
+            </div>
+        </div>
+
+        <div class="form-footer">
+            <button type="submit" class="button is-success">Create</button>
+        </div>
     </form>
 </template>
 
@@ -26,16 +82,19 @@
 import { reactive, watch } from 'vue'
 
 const props = defineProps({ formData: Object })
-const emit = defineEmits(['submit','back'])
+const emit = defineEmits(['submit'])
+
 const local = reactive({ ...props.formData })
 
-watch(local, () => { Object.assign(props.formData, local) }, { deep: true })
+watch(local, () => Object.assign(props.formData, local), { deep: true })
+
+function autoResize(event) {
+    const el = event.target
+    el.style.height = 'auto'
+    el.style.height = el.scrollHeight + 'px'
+}
 
 function submit() {
     emit('submit', { ...props.formData })
-}
-
-function back() {
-    emit('back')
 }
 </script>

@@ -1,64 +1,93 @@
 <template>
     <form @submit.prevent="submit">
-        <label>
-            Name
-            <input v-model="local.name" required />
-        </label>
+        <h2 class="form-title">Weekly Availability Match</h2>
 
-        <label>
-            Description
-            <textarea v-model="local.description"></textarea>
-        </label>
+        <label class="label">Name *</label>
+        <input v-model="local.name" type="text" required class="input" placeholder="Event name" />
 
-        <label>
-            Location
-            <input v-model="local.location" />
-        </label>
-        
-        <!-- Weekly‑specific fields -->
-        <fieldset>
-            <legend>Days of Week</legend>
-            <label><input type="checkbox" v-model="local.mon_selected" />Monday</label>
-            <label><input type="checkbox" v-model="local.tue_selected" />Tuesday</label>
-            <label><input type="checkbox" v-model="local.wed_selected" />Wednesday</label>
-            <label><input type="checkbox" v-model="local.thur_selected" />Thursday</label>
-            <label><input type="checkbox" v-model="local.fri_selected" />Friday</label>
-            <label><input type="checkbox" v-model="local.sat_selected" />Saturday</label>
-            <label><input type="checkbox" v-model="local.sun_selected" />Sunday</label>
-        </fieldset>
+        <label class="label">Description</label>
+        <textarea
+        v-model="local.description"
+        class="textarea"
+        placeholder="Optional details..."
+        maxlength="1000"
+        rows="1"
+        @input="autoResize"
+        ></textarea>
+        <div class="char-counter">{{ local.description.length }} / 1000</div>
 
-        <label>
-            Start Time
-            <input v-model="local.start_time" type="time" required />
-        </label>
+        <label class="label">Location</label>
+        <input v-model="local.location" type="text" class="input" placeholder="e.g. Zoom, Café..." />
 
-        <label>
-            End Time
-            <input v-model="local.end_time" type="time" required />
-        </label>
+        <label class="label">Days of week *</label>
+        <div class="day-selector" @mousedown.prevent="startDrag" @mouseup="stopDrag" @mouseleave="stopDrag">
+            <button
+            v-for="(day, index) in days"
+            :key="index"
+            type="button"
+            class="day-button"
+            :class="{ active: local[day.key] }"
+            @mouseover="dragging && toggleDay(day.key)"
+            @click="toggleDay(day.key)"
+            >
+            {{ day.label }}
+            </button>
+        </div>
 
-        <button type="button" @click="back">‹ Back</button>
-        <button type="submit">Create</button>
+        <div class="time-row">
+            <div>
+                <label class="label">Start time *</label>
+                <input v-model="local.start_time" type="time" required class="input" />
+            </div>
+            <div>
+                <label class="label">End time *</label>
+                <input v-model="local.end_time" type="time" required class="input" />
+            </div>
+        </div>
+
+        <div class="form-footer">
+            <button type="submit" class="button is-success">Create</button>
+        </div>
     </form>
 </template>
 
 <script setup>
-import { reactive, watch } from 'vue'
+import { reactive, watch, ref } from 'vue'
 
-const props = defineProps({
-    formData: Object
-})
+const props = defineProps({ formData: Object })
+const emit = defineEmits(['submit'])
+
 const local = reactive({ ...props.formData })
+watch(local, () => Object.assign(props.formData, local), { deep: true })
 
-// keep parent’s formData updated
-watch(local, v => { Object.assign(props.formData, v) }, { deep: true })
+const days = [
+    { label: 'Mon', key: 'mon_selected' },
+    { label: 'Tue', key: 'tue_selected' },
+    { label: 'Wed', key: 'wed_selected' },
+    { label: 'Thu', key: 'thur_selected' },
+    { label: 'Fri', key: 'fri_selected' },
+    { label: 'Sat', key: 'sat_selected' },
+    { label: 'Sun', key: 'sun_selected' }
+]
 
-function submit() {
-    // call parent with the entire formData
-    $emit('submit', { ...props.formData })
+let dragging = ref(false)
+function startDrag() {
+    dragging.value = true
+}
+function stopDrag() {
+    dragging.value = false
+}
+function toggleDay(dayKey) {
+    local[dayKey] = !local[dayKey]
 }
 
-function back() {
-    emit('back')
+function autoResize(event) {
+    const el = event.target
+    el.style.height = 'auto'
+    el.style.height = el.scrollHeight + 'px'
+}
+
+function submit() {
+    emit('submit', { ...props.formData })
 }
 </script>
