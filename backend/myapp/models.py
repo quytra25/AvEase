@@ -46,13 +46,15 @@ class Event(models.Model):
 
     name = models.CharField(max_length=255)
     type = models.CharField(max_length=20, choices=event_type)
-    description = models.TextField(blank=True)
-    location = models.CharField(max_length=255, blank=True)
+    description = models.TextField(null=True, blank=True)
+    location = models.CharField(max_length=255, null=True, blank=True)
     link = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     coordinator = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name='events'
+        related_name='events',
+        null=True,
+        blank=True
     )
 
     def __str__(self):

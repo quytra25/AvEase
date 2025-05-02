@@ -7,10 +7,18 @@ from .serializers import (
 )
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from django.views.decorators.csrf import ensure_csrf_cookie
+from django.http import JsonResponse
+from rest_framework.permissions import AllowAny
+
+@ensure_csrf_cookie
+def get_csrf_token(request):
+    return JsonResponse({'message': 'CSRF cookie set'})
 
 class EventViewSet(viewsets.ModelViewSet):
     queryset = Event.objects.all()
-    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = EventSerializer
+    permission_classes = [AllowAny]
 
     def get_serializer_class(self):
         if self.action == 'retrieve':
@@ -19,9 +27,11 @@ class EventViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        return Event.objects.filter(
-            models.Q(coordinator=user) | models.Q(participant__user=user)
-        ).distinct()
+        if user.is_authenticated:
+            return Event.objects.filter(
+                models.Q(coordinator=user) | models.Q(participant__user=user)
+            ).distinct()
+        return Event.objects.none()
 
     def perform_update(self, serializer):
         event = self.get_object()

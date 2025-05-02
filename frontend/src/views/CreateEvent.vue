@@ -34,14 +34,14 @@
 
             <div class="event-form">
                 <!-- Dynamically render the right form -->
-                <component :is="currentFormComponent" :formData="formData" @submit="onSubmit"/>
+                <component :is="currentFormComponent" :formData="formData" @submit="(data) => { console.log('Submitted data:', data); onSubmit(data) }"/>
             </div>
         </div>
     </section>
 </template>
 
 <script setup>
-import { ref, reactive, computed, watch } from 'vue'
+import { ref, reactive, computed, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '@/services/api'
 import { useToast } from 'vue-toastification'
@@ -99,7 +99,7 @@ function selectSubType(st) {
   subType.value = st
 }
 
-// 5) Pick the right form component
+// Pick the right form component
 const currentFormComponent = computed(() => {
     if (eventType.value === 'availability_match') {
         if (subType.value === 'weekly') {
@@ -123,16 +123,28 @@ const currentFormComponent = computed(() => {
     return null
 })
 
-// 6) On final submit: smash together common + subtype fields & hit the API
+onMounted(async () => {
+    try {
+        await api.getCsrfToken()
+        console.log('CSRF cookie set')
+    } catch (err) {
+        console.error('Failed to fetch CSRF token', err)
+    }
+})
+
+// On final submit: smash together common + subtype fields & hit the API
 async function onSubmit(payload) {
     try {
-        // 1) send the payload to your server
+        // Get CSRF token first
+        await api.getCsrfToken();
+
+        // send the event creation request (payload) to your server
         const { data: created } = await api.createEvent(payload)
 
-        // 2) notify the user
+        // notify the user
         toast.success('Event created!')
 
-        // 3) redirect to the newly created event’s detail page
+        // redirect to the newly created event’s detail page
         router.push({ name: 'EventDetail', params: { id: created.id } })
 
     } catch (err) {

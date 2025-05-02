@@ -19,9 +19,17 @@ class EventSerializer(serializers.ModelSerializer):
     class Meta:
         model = Event
         fields = [
-            'id', 'name', 'description', 'type', 'sub_type' 'location', 'coordinator', 'link', 'is_all_day', 'start_date_range', 'end_date_range', 'start_time', 'end_time',
+            'id', 'name', 'type', 'description', 'location', 'coordinator', 'link'
         ]
         read_only_fields = ['id', 'link']
+
+    def create(self, validated_data):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            validated_data['coordinator'] = request.user
+        else:
+            validated_data.pop('coordinator', None)
+        return super().create(validated_data)
 
 # EventDetail with nested participants
 class EventDetailSerializer(serializers.ModelSerializer):
@@ -30,12 +38,14 @@ class EventDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Event
         fields = [
-            'id', 'name', 'description', 'type', 'sub_type', 'link', 'is_all_day',
-            # availability-match fields
-            'start_date_range', 'end_date_range', 'start_time', 'end_time',
-            # RSVP-based fields
-            'date', 'start_date', 'end_date',
-            'participants'
+            'id', 'name', 'type', 'description', 'location', 'link', 'participants'
+
+            # 'id', 'name', 'description', 'type', 'sub_type', 'link', 'is_all_day',
+            # # availability-match fields
+            # 'start_date_range', 'end_date_range', 'start_time', 'end_time',
+            # # RSVP-based fields
+            # 'date', 'start_date', 'end_date',
+            # 'participants'
         ]
         read_only_fields = fields
 
