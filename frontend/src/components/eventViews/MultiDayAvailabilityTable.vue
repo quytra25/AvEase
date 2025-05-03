@@ -1,27 +1,27 @@
 <template>
     <div class="overflow-auto">
-    <table class="table is-bordered is-hoverable is-fullwidth">
-        <thead>
-        <tr>
-            <th>Date</th>
-            <th class="has-text-centered">Available?</th>
-            <th class="has-text-centered">Count</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr v-for="date in dateSlots" :key="date">
-            <td><code>{{ date }}</code></td>
-            <td :class="cellClass(date)" class="has-text-centered">
-            <input
-                type="checkbox"
-                :checked="hasSlot(date)"
-                @change="toggleSlot(date, $event.target.checked)"
-            />
-            </td>
-            <td class="has-text-centered">{{ countSlot(date) }}</td>
-        </tr>
-        </tbody>
-    </table>
+        <table class="table is-bordered is-hoverable is-fullwidth">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th class="has-text-centered">Available?</th>
+                    <th class="has-text-centered">Count</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="date in dateSlots" :key="date">
+                    <td><code>{{ date }}</code></td>
+                    <td :class="cellClass(date)" class="has-text-centered">
+                        <input
+                        type="checkbox"
+                        :checked="hasSlot(date)"
+                        @change="toggleSlot(date, $event.target.checked)"
+                        />
+                    </td>
+                    <td class="has-text-centered">{{ countSlot(date) }}</td>
+                </tr>
+            </tbody>
+        </table>
     </div>
 </template>
 
@@ -37,11 +37,11 @@ const selections = ref(new Set())
 watchEffect(() => {
     const p = props.event.participants.find(p => p.id === props.participantID)
     if (p) {
-    selections.value = new Set(
-        p.availabilities
-        .filter(a => a.availability_type === 'date_only')
-        .map(a => a.selected_date)
-    )
+        selections.value = new Set(
+            p.availabilities
+            .filter(a => a.availability_type === 'date_only')
+            .map(a => a.selected_date)
+        )
     }
 })
 
@@ -51,8 +51,8 @@ const dateSlots = computed(() => {
     const dates = []
     let d = new Date(start)
     while (d <= end) {
-    dates.push(d.toISOString().slice(0, 10))
-    d.setDate(d.getDate() + 1)
+        dates.push(d.toISOString().slice(0, 10))
+        d.setDate(d.getDate() + 1)
     }
     return dates
 })
@@ -77,18 +77,18 @@ function cellClass(date) {
 
 async function toggleSlot(date, checked) {
     try {
-    if (checked) {
-        await api.addAvailability({
-        participant: props.participantID,
-        availability_type: 'date_only',
-        selected_date: date
-        })
-    }
-    const { data } = await api.getEvent(props.event.id)
-    props.event.participants = data.participants
-    toast.success('Availability updated')
+        if (checked) {
+            await api.addAvailability({
+                participant: props.participantID,
+                availability_type: 'date_only',
+                selected_date: date
+            })
+        }
+        const { data } = await api.getEvent(props.event.id)
+        props.event.participants = data.participants
+        toast.success('Availability updated')
     } catch (err) {
-    toast.error('Error saving availability')
+        toast.error('Error saving availability')
     }
 }
 </script>

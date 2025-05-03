@@ -1,31 +1,31 @@
 <template>
     <div class="overflow-auto">
-    <table class="table is-bordered is-hoverable is-fullwidth">
-        <thead>
-        <tr>
-            <th>Time / Date</th>
-            <th v-for="date in dateSlots" :key="date">{{ date }}</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr v-for="time in timeSlots" :key="time">
-            <td><code>{{ time }}</code></td>
-            <td
-            v-for="date in dateSlots"
-            :key="date"
-            :class="cellClass(date, time)"
-            class="has-text-centered"
-            >
-            <input
-                type="checkbox"
-                :checked="hasSlot(date, time)"
-                @change="toggleSlot(date, time, $event.target.checked)"
-            />
-            <div class="is-size-7 mt-1">{{ countSlot(date, time) }}</div>
-            </td>
-        </tr>
-        </tbody>
-    </table>
+        <table class="table is-bordered is-hoverable is-fullwidth">
+            <thead>
+                <tr>
+                    <th>Time / Date</th>
+                    <th v-for="date in dateSlots" :key="date">{{ date }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="time in timeSlots" :key="time">
+                    <td><code>{{ time }}</code></td>
+                    <td
+                    v-for="date in dateSlots"
+                    :key="date"
+                    :class="cellClass(date, time)"
+                    class="has-text-centered"
+                    >
+                    <input
+                    type="checkbox"
+                    :checked="hasSlot(date, time)"
+                    @change="toggleSlot(date, time, $event.target.checked)"
+                    />
+                    <div class="is-size-7 mt-1">{{ countSlot(date, time) }}</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
     </div>
 </template>
 
@@ -41,11 +41,11 @@ const selections = ref(new Set())
 watchEffect(() => {
     const p = props.event.participants.find(p => p.id === props.participantID)
     if (p) {
-    selections.value = new Set(
-        p.availabilities
-        .filter(a => a.availability_type === 'date_time')
-        .map(a => `${a.selected_date}|${a.selected_start_time}`)
-    )
+        selections.value = new Set(
+            p.availabilities
+            .filter(a => a.availability_type === 'date_time')
+            .map(a => `${a.selected_date}|${a.selected_start_time}`)
+        )
     }
 })
 
@@ -55,8 +55,8 @@ const dateSlots = computed(() => {
     const dates = []
     let d = new Date(start)
     while (d <= end) {
-    dates.push(d.toISOString().slice(0, 10))
-    d.setDate(d.getDate() + 1)
+        dates.push(d.toISOString().slice(0, 10))
+        d.setDate(d.getDate() + 1)
     }
     return dates
 })
@@ -68,8 +68,8 @@ const timeSlots = computed(() => {
     let d = new Date(0, 0, 0, sh, sm)
     const end = new Date(0, 0, 0, eh, em)
     while (d <= end) {
-    slots.push(d.toTimeString().slice(0, 5))
-    d.setMinutes(d.getMinutes() + 15)
+        slots.push(d.toTimeString().slice(0, 5))
+        d.setMinutes(d.getMinutes() + 15)
     }
     return slots
 })
@@ -98,20 +98,20 @@ function cellClass(date, time) {
 
 async function toggleSlot(date, time, checked) {
     try {
-    if (checked) {
-        await api.addAvailability({
-        participant: props.participantID,
-        availability_type: 'date_time',
-        selected_date: date,
-        selected_start_time: time,
-        selected_end_time: time
-        })
-    }
-    const { data } = await api.getEvent(props.event.id)
-    props.event.participants = data.participants
-    toast.success('Availability updated')
+        if (checked) {
+            await api.addAvailability({
+                participant: props.participantID,
+                availability_type: 'date_time',
+                selected_date: date,
+                selected_start_time: time,
+                selected_end_time: time
+            })
+        }
+        const { data } = await api.getEvent(props.event.id)
+        props.event.participants = data.participants
+        toast.success('Availability updated')
     } catch (err) {
-    toast.error('Error saving availability')
+        toast.error('Error saving availability')
     }
 }
 </script>
