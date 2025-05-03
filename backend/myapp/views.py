@@ -1,43 +1,37 @@
-from rest_framework import viewsets, permissions
-from django.db import models
-from django.core.exceptions import PermissionDenied
-from .models import Event, Participant, Availability
-from .serializers import (
-    EventSerializer, EventDetailSerializer, ParticipantSerializer, ParticipantGuestSerializer, AvailabilitySerializer
-)
+from rest_framework import viewsets, generics, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from django.views.decorators.csrf import ensure_csrf_cookie
-from django.http import JsonResponse
-from rest_framework.permissions import AllowAny
-
-@ensure_csrf_cookie
-def get_csrf_token(request):
-    return JsonResponse({'message': 'CSRF cookie set'})
+from .models import (
+    Event, Participant, WeeklyAvailability, DateTimeAvailability, DateAvailability, RsvpStatus
+)
+from .serializers import (
+    EventSerializer, ParticipantSerializer, ParticipantGuestSerializer,
+    WeeklyAvailabilitySerializer, DateTimeAvailabilitySerializer, DateAvailabilitySerializer, RsvpStatusSerializer
+)
 
 class EventViewSet(viewsets.ModelViewSet):
     queryset = Event.objects.all()
     serializer_class = EventSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [permissions.AllowAny]
+    lookup_field = 'link'
 
-    def get_serializer_class(self):
-        if self.action == 'retrieve':
-            return EventDetailSerializer
-        return EventSerializer
-
-    def get_queryset(self):
-        user = self.request.user
-        if user.is_authenticated:
-            return Event.objects.filter(
-                models.Q(coordinator=user) | models.Q(participant__user=user)
-            ).distinct()
-        return Event.objects.none()
-
-    def perform_update(self, serializer):
+    @action(detail=True, methods=['get'])
+    def participants(self, request, pk=None):
         event = self.get_object()
-        if event.coordinator != self.request.user:
-            raise PermissionDenied("Only the coordinator can edit this event.")
-        serializer.save()
+        participants = event.participants.all()
+        serializer = ParticipantSerializer(participants, many=True)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['get'])
+    def availabilities(self, request, pk=None):
+        event = self.get_object()
+        participant_ids = event.participants.values_list('id', flat=True)
+        return Response({
+            'weekly': WeeklyAvailabilitySerializer(WeeklyAvailability.objects.filter(participant_id__in=participant_ids), many=True).data,
+            'datetime': DateTimeAvailabilitySerializer(DateTimeAvailability.objects.filter(participant_id__in=participant_ids), many=True).data,
+            'date': DateAvailabilitySerializer(DateAvailability.objects.filter(participant_id__in=participant_ids), many=True).data,
+            'rsvp': RsvpStatusSerializer(RsvpStatus.objects.filter(participant_id__in=participant_ids), many=True).data,
+        })
 
 class ParticipantViewSet(viewsets.ModelViewSet):
     queryset = Participant.objects.all()
@@ -45,23 +39,28 @@ class ParticipantViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def perform_create(self, serializer):
-        # auto‐assign the user
         serializer.save(user=self.request.user)
 
-    @action(detail=False, methods=['post'], url_path='guest')
-    def join_guest(self, request):
-        ser = ParticipantGuestSerializer(data=request.data)
-        ser.is_valid(raise_exception=True)
-        p = ser.save()
-        return Response({'id': p.id})
+class ParticipantGuestCreateView(generics.CreateAPIView):
+    serializer_class = ParticipantGuestSerializer
+    permission_classes = [permissions.AllowAny]
 
-class AvailabilityViewSet(viewsets.ModelViewSet):
-    queryset = Availability.objects.all()
-    serializer_class = AvailabilitySerializer
-    permission_classes = [permissions.IsAuthenticated]
+class WeeklyAvailabilityViewSet(viewsets.ModelViewSet):
+    queryset = WeeklyAvailability.objects.all()
+    serializer_class = WeeklyAvailabilitySerializer
+    permission_classes = [permissions.AllowAny]
 
-    def perform_create(self, serializer):
-        participant = serializer.validated_data['participant']
-        if participant.user != self.request.user:
-            raise PermissionDenied("Can't set someone else's availability.")
-        serializer.save()
+class DateTimeAvailabilityViewSet(viewsets.ModelViewSet):
+    queryset = DateTimeAvailability.objects.all()
+    serializer_class = DateTimeAvailabilitySerializer
+    permission_classes = [permissions.AllowAny]
+
+class DateAvailabilityViewSet(viewsets.ModelViewSet):
+    queryset = DateAvailability.objects.all()
+    serializer_class = DateAvailabilitySerializer
+    permission_classes = [permissions.AllowAny]
+
+class RsvpStatusViewSet(viewsets.ModelViewSet):
+    queryset = RsvpStatus.objects.all()
+    serializer_class = RsvpStatusSerializer
+    permission_classes = [permissions.AllowAny]
