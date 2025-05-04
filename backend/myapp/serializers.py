@@ -10,22 +10,21 @@ import uuid
 # --- Event Serializers ---
 
 class EventSerializer(serializers.ModelSerializer):
-    """
-    Serializer for the base Event model with methods to handle different event types
-    """
-    
     event_details = serializers.SerializerMethodField()
-    
+    participants = serializers.SerializerMethodField()
+
     class Meta:
         model = Event
-        fields = ['id', 'name', 'description', 'location', 'link', 'coordinator', 'event_type', 'event_details']
+        fields = [
+            'id', 'name', 'description', 'location', 'link',
+            'coordinator', 'event_type', 'event_details', 'participants'
+        ]
         extra_kwargs = {
             'description': {'required': False},
             'location': {'required': False}
         }
-    
+
     def get_event_details(self, obj):
-        """Return the appropriate event details based on event_type"""
         if obj.event_type == 'weekly':
             try:
                 return WeeklyEventDetailsSerializer(obj.weekly_details).data
@@ -52,7 +51,10 @@ class EventSerializer(serializers.ModelSerializer):
             except RsvpMultiDayEventDetails.DoesNotExist:
                 return None
         return None
-    
+
+    def get_participants(self, obj):
+        return ParticipantSerializer(obj.participants.all(), many=True).data
+
     def create(self, validated_data):
         user = self.context['request'].user
         if user.is_authenticated:
@@ -61,66 +63,55 @@ class EventSerializer(serializers.ModelSerializer):
             validated_data['coordinator'] = None
 
         event_type = validated_data.get('event_type')
-        details_data = self.initial_data.get('event_details', {})
-        
-        # Create the base event
         event = Event.objects.create(**validated_data)
-        
-        # Create the appropriate event details based on event_type
-        if event_type == 'weekly' and details_data:
-            WeeklyEventDetails.objects.create(event=event, **details_data)
-        elif event_type == 'single_day' and details_data:
-            SingleDayEventDetails.objects.create(event=event, **details_data)
-        elif event_type == 'multi_day' and details_data:
-            MultiDayEventDetails.objects.create(event=event, **details_data)
-        elif event_type == 'rsvp_single' and details_data:
-            RsvpSingleDayEventDetails.objects.create(event=event, **details_data)
-        elif event_type == 'rsvp_multi' and details_data:
-            RsvpMultiDayEventDetails.objects.create(event=event, **details_data)
-        
+        data = self.context['request'].data
+
+        if event_type == 'weekly':
+            WeeklyEventDetails.objects.create(
+                event=event,
+                mon_selected=data.get('mon_selected', False),
+                tue_selected=data.get('tue_selected', False),
+                wed_selected=data.get('wed_selected', False),
+                thur_selected=data.get('thur_selected', False),
+                fri_selected=data.get('fri_selected', False),
+                sat_selected=data.get('sat_selected', False),
+                sun_selected=data.get('sun_selected', False),
+                start_time=data.get('start_time'),
+                end_time=data.get('end_time'),
+            )
+        elif event_type == 'single_day':
+            SingleDayEventDetails.objects.create(
+                event=event,
+                start_date_range=data.get('start_date_range'),
+                end_date_range=data.get('end_date_range'),
+                start_time=data.get('start_time'),
+                end_time=data.get('end_time'),
+                is_all_day=data.get('is_all_day', False)
+            )
+        elif event_type == 'multi_day':
+            MultiDayEventDetails.objects.create(
+                event=event,
+                num_days=data.get('num_days', 1),
+                start_date_range=data.get('start_date_range'),
+                end_date_range=data.get('end_date_range'),
+            )
+        elif event_type == 'rsvp_single':
+            RsvpSingleDayEventDetails.objects.create(
+                event=event,
+                date=data.get('date'),
+                start_time=data.get('start_time'),
+                end_time=data.get('end_time'),
+                is_all_day=data.get('is_all_day', False)
+            )
+        elif event_type == 'rsvp_multi':
+            RsvpMultiDayEventDetails.objects.create(
+                event=event,
+                start_date=data.get('start_date'),
+                end_date=data.get('end_date'),
+                start_time=data.get('start_time'),
+                end_time=data.get('end_time'),
+            )
         return event
-    
-    def update(self, instance, validated_data):
-        event_type = validated_data.get('event_type', instance.event_type)
-        details_data = self.initial_data.get('event_details', {})
-        
-        # Update the base event
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
-        instance.save()
-        
-        # Update the appropriate event details based on event_type
-        if event_type == 'weekly' and details_data:
-            weekly_details, created = WeeklyEventDetails.objects.get_or_create(event=instance)
-            for attr, value in details_data.items():
-                setattr(weekly_details, attr, value)
-            weekly_details.save()
-
-        elif event_type == 'single_day' and details_data:
-            single_day_details, created = SingleDayEventDetails.objects.get_or_create(event=instance)
-            for attr, value in details_data.items():
-                setattr(single_day_details, attr, value)
-            single_day_details.save()
-
-        elif event_type == 'multi_day' and details_data:
-            multi_day_details, created = MultiDayEventDetails.objects.get_or_create(event=instance)
-            for attr, value in details_data.items():
-                setattr(multi_day_details, attr, value)
-            multi_day_details.save()
-
-        elif event_type == 'rsvp_single' and details_data:
-            rsvp_single_details, created = RsvpSingleDayEventDetails.objects.get_or_create(event=instance)
-            for attr, value in details_data.items():
-                setattr(rsvp_single_details, attr, value)
-            rsvp_single_details.save()
-            
-        elif event_type == 'rsvp_multi' and details_data:
-            rsvp_multi_details, created = RsvpMultiDayEventDetails.objects.get_or_create(event=instance)
-            for attr, value in details_data.items():
-                setattr(rsvp_multi_details, attr, value)
-            rsvp_multi_details.save()
-        
-        return instance
 
 # --- Event Details Serializers (for nested use) ---
 
@@ -204,7 +195,7 @@ class ParticipantGuestSerializer(serializers.ModelSerializer):
         guest_name = validated_data.pop('guest_name')
         user, _ = CustomUser.objects.get_or_create(
             email=f'guest_{uuid.uuid4().hex[:8]}@guest.com',
-            defaults={
+            defaults = {
                 'first_name': guest_name,
                 'is_registered': False,
                 'password': CustomUser.objects.make_random_password(),

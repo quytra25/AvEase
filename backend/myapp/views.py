@@ -1,14 +1,96 @@
-from rest_framework import viewsets, generics, permissions
-from rest_framework.decorators import action
+from rest_framework import viewsets, permissions, status, generics
 from rest_framework.response import Response
+from rest_framework.decorators import action, api_view, permission_classes
+from rest_framework.permissions import AllowAny
+from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
+from django.utils.decorators import method_decorator
+from django.http import JsonResponse
+from django.contrib.auth import authenticate, login, logout
+
 from .models import (
-    Event, Participant, WeeklyAvailability, DateTimeAvailability, DateAvailability, RsvpStatus
-)
-from .serializers import (
-    EventSerializer, ParticipantSerializer, ParticipantGuestSerializer,
-    WeeklyAvailabilitySerializer, DateTimeAvailabilitySerializer, DateAvailabilitySerializer, RsvpStatusSerializer
+    Event, Participant, CustomUser,
+    WeeklyAvailability, DateTimeAvailability,
+    DateAvailability, RsvpStatus
 )
 
+from .serializers import (
+    EventSerializer, ParticipantSerializer, ParticipantGuestSerializer,
+    WeeklyAvailabilitySerializer, DateTimeAvailabilitySerializer,
+    DateAvailabilitySerializer, RsvpStatusSerializer
+)
+
+
+# CSRF Token Setter
+@ensure_csrf_cookie
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def csrf_token_view(request):
+    return JsonResponse({'detail': 'CSRF cookie set'})
+
+
+# Authentication Views
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def signup_view(request):
+    data = request.data
+    if CustomUser.objects.filter(email=data['email']).exists():
+        return JsonResponse({'error': 'Email already in use'}, status=400)
+
+    user = CustomUser.objects.create_user(
+        email=data['email'],
+        password=data['password'],
+        first_name=data.get('first_name', ''),
+        last_name=data.get('last_name', '')
+    )
+    login(request, user)
+    return JsonResponse({'message': 'User created', 'user': {
+        'email': user.email,
+        'first_name': user.first_name,
+        'last_name': user.last_name,
+    }})
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def login_view(request):
+    email = request.data.get('email')
+    password = request.data.get('password')
+
+    user = authenticate(request, email=email, password=password)
+    if user is not None:
+        login(request, user)
+        return JsonResponse({'message': 'Login successful', 'user': {
+            'email': user.email,
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+        }})
+    return JsonResponse({'error': 'Invalid credentials'}, status=400)
+
+@api_view(['POST'])
+def logout_view(request):
+    logout(request)
+    return JsonResponse({'message': 'Logged out'})
+
+@api_view(['GET'])
+def current_user_view(request):
+    if request.user.is_authenticated:
+        user = request.user
+        return JsonResponse({
+            'email': user.email,
+            'first_name': user.first_name,
+            'last_name': user.last_name
+        })
+    return JsonResponse({'user': None})
+
+
+# Guest Join
+@method_decorator(csrf_exempt, name='dispatch')
+class ParticipantGuestCreateView(generics.CreateAPIView):
+    serializer_class = ParticipantGuestSerializer
+    permission_classes = [AllowAny]
+    authentication_classes = []
+
+
+# Event ViewSet
 class EventViewSet(viewsets.ModelViewSet):
     queryset = Event.objects.all()
     serializer_class = EventSerializer
@@ -27,12 +109,22 @@ class EventViewSet(viewsets.ModelViewSet):
         event = self.get_object()
         participant_ids = event.participants.values_list('id', flat=True)
         return Response({
-            'weekly': WeeklyAvailabilitySerializer(WeeklyAvailability.objects.filter(participant_id__in=participant_ids), many=True).data,
-            'datetime': DateTimeAvailabilitySerializer(DateTimeAvailability.objects.filter(participant_id__in=participant_ids), many=True).data,
-            'date': DateAvailabilitySerializer(DateAvailability.objects.filter(participant_id__in=participant_ids), many=True).data,
-            'rsvp': RsvpStatusSerializer(RsvpStatus.objects.filter(participant_id__in=participant_ids), many=True).data,
+            'weekly': WeeklyAvailabilitySerializer(
+                WeeklyAvailability.objects.filter(participant_id__in=participant_ids), many=True
+            ).data,
+            'datetime': DateTimeAvailabilitySerializer(
+                DateTimeAvailability.objects.filter(participant_id__in=participant_ids), many=True
+            ).data,
+            'date': DateAvailabilitySerializer(
+                DateAvailability.objects.filter(participant_id__in=participant_ids), many=True
+            ).data,
+            'rsvp': RsvpStatusSerializer(
+                RsvpStatus.objects.filter(participant_id__in=participant_ids), many=True
+            ).data,
         })
 
+
+# Participant ViewSet
 class ParticipantViewSet(viewsets.ModelViewSet):
     queryset = Participant.objects.all()
     serializer_class = ParticipantSerializer
@@ -41,10 +133,8 @@ class ParticipantViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
-class ParticipantGuestCreateView(generics.CreateAPIView):
-    serializer_class = ParticipantGuestSerializer
-    permission_classes = [permissions.AllowAny]
 
+# Availability ViewSets
 class WeeklyAvailabilityViewSet(viewsets.ModelViewSet):
     queryset = WeeklyAvailability.objects.all()
     serializer_class = WeeklyAvailabilitySerializer

@@ -3,7 +3,7 @@ import CreateEvent from '@/views/CreateEvent.vue'
 import EventList from '@/views/EventList.vue'
 import EventDetail from '@/views/EventDetail.vue'
 import Login from '@/views/Login.vue'
-import { fetchCurrentUser, useAuth } from '@/composables/useAuth'
+import { useAuth } from '@/composables/useAuth'
 
 const routes = [
   { path: '/', name: 'Home', component: CreateEvent },
@@ -21,11 +21,8 @@ const router = createRouter({
 })
 
 router.beforeEach(async (to, from, next) => {
+  const { fetchCurrentUser } = useAuth()
   await fetchCurrentUser()
-  const { isAuthenticated } = useAuth()
-  if (to.meta.requiresAuth && !isAuthenticated.value) {
-    return next({ path: '/login' })
-  }
   next()
 })
 

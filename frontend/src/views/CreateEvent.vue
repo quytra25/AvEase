@@ -1,47 +1,47 @@
 <template>
     <Spinner v-if="loading" />
     <section class="section">
-    <div class="container">
-        <h1 class="title">Create an Event</h1>
+        <div class="container">
+            <h1 class="title">Create an Event</h1>
 
-        <!-- Main Type Toggle -->
-        <div class="toggle-group">
-        <div class="buttons has-addons mb-4">
-            <button class="button" :class="{ 'is-link': mainType === 'availability_match' }" @click="selectMainType('availability_match')">
-            Availability Match
-            </button>
-            <button class="button" :class="{ 'is-link': mainType === 'rsvp_based' }" @click="selectMainType('rsvp_based')">
-            RSVP-Based
-            </button>
-        </div>
-        </div>
+            <!-- Main Type Toggle -->
+            <div class="toggle-group">
+                <div class="buttons has-addons mb-4">
+                    <button class="button" :class="{ 'is-link': mainType === 'availability_match' }" @click="selectMainType('availability_match')">
+                        Availability Match
+                    </button>
+                    <button class="button" :class="{ 'is-link': mainType === 'rsvp_based' }" @click="selectMainType('rsvp_based')">
+                        RSVP-Based
+                    </button>
+                </div>
+            </div>
 
-        <!-- Sub-Type Toggle -->
-        <div class="toggle-group">
-        <div v-if="mainType === 'availability_match'" class="buttons has-addons mb-4">
-            <button class="button" :class="{ 'is-link': subType === 'weekly' }" @click="selectSubType('weekly')">Weekly</button>
-            <button class="button" :class="{ 'is-link': subType === 'single_day' }" @click="selectSubType('single_day')">Single Day</button>
-            <button class="button" :class="{ 'is-link': subType === 'multi_day' }" @click="selectSubType('multi_day')">Multi Day</button>
-        </div>
-        <div v-else class="buttons has-addons mb-4">
-            <button class="button" :class="{ 'is-link': subType === 'rsvp_single' }" @click="selectSubType('rsvp_single')">
-            Single Day
-            </button>
-            <button class="button" :class="{ 'is-link': subType === 'rsvp_multi' }" @click="selectSubType('rsvp_multi')">
-            Multi Day
-            </button>
-        </div>
-        </div>
+            <!-- Sub-Type Toggle -->
+            <div class="toggle-group">
+                <div v-if="mainType === 'availability_match'" class="buttons has-addons mb-4">
+                    <button class="button" :class="{ 'is-link': subType === 'weekly' }" @click="selectSubType('weekly')">Weekly</button>
+                    <button class="button" :class="{ 'is-link': subType === 'single_day' }" @click="selectSubType('single_day')">Single Day</button>
+                    <button class="button" :class="{ 'is-link': subType === 'multi_day' }" @click="selectSubType('multi_day')">Multi Day</button>
+                </div>
+                <div v-else class="buttons has-addons mb-4">
+                    <button class="button" :class="{ 'is-link': subType === 'rsvp_single' }" @click="selectSubType('rsvp_single')">
+                        Single Day
+                    </button>
+                    <button class="button" :class="{ 'is-link': subType === 'rsvp_multi' }" @click="selectSubType('rsvp_multi')">
+                        Multi Day
+                    </button>
+                </div>
+            </div>
 
-        <!-- Form -->
-        <div class="event-form">
-        <component
-            :is="currentFormComponent"
-            :formData="formData"
-            @submit="onSubmit"
-        />
+            <!-- Form -->
+            <div class="event-form">
+                <component
+                :is="currentFormComponent"
+                :formData="formData"
+                @submit="onSubmit"
+                />
+            </div>
         </div>
-    </div>
     </section>
 </template>
 
@@ -112,21 +112,21 @@ function selectSubType(type) {
 // Dynamic form component loader
 const currentFormComponent = computed(() => {
     switch (subType.value) {
-    case 'weekly': return AvailabilityWeeklyForm
-    case 'single_day': return AvailabilitySingleDayForm
-    case 'multi_day': return AvailabilityMultiDayForm
-    case 'rsvp_single': return RsvpSingleDayForm
-    case 'rsvp_multi': return RsvpMultiDayForm
-    default: return null
+        case 'weekly': return AvailabilityWeeklyForm
+        case 'single_day': return AvailabilitySingleDayForm
+        case 'multi_day': return AvailabilityMultiDayForm
+        case 'rsvp_single': return RsvpSingleDayForm
+        case 'rsvp_multi': return RsvpMultiDayForm
+        default: return null
     }
 })
 
 // CSRF init
 onMounted(async () => {
     try {
-    await api.getCsrfToken()
+        await api.getCsrfToken()
     } catch (err) {
-    console.error('Failed to fetch CSRF token', err)
+        console.error('Failed to fetch CSRF token', err)
     }
 })
 
@@ -134,15 +134,15 @@ onMounted(async () => {
 async function onSubmit(validatedPayload) {
     loading.value = true
     try {
-    await api.getCsrfToken()
-    const { data: created } = await api.createEvent(validatedPayload)
-    toast.success('Event created!')
-    router.push({ name: 'EventDetail', params: { link: created.link } })
+        await api.getCsrfToken()
+        const { data: created } = await api.createEvent(validatedPayload)
+        toast.success('Event created!')
+        router.push({ name: 'EventDetail', params: { link: created.link } })
     } catch (err) {
-    console.error(err)
-    toast.error('Failed to create event. Try again.')
+        console.error(err)
+        toast.error('Failed to create event. Try again.')
     } finally {
-    loading.value = false
+        loading.value = false
     }
 }
 </script>
