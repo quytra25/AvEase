@@ -5,25 +5,32 @@
     </div>
     <div v-else class="section">
         <div class="container">
-            <h1 class="title has-text-centered">{{ event.name }}</h1>
-            <p class="subtitle has-text-centered">{{ event.description }}</p>
-
-            <!-- Shareable Link -->
-            <div class="box is-shadowless has-background-light">
-                <p class="mb-2 has-text-dark has-text-weight-semibold">Shareable Link:</p>
-                <div class="is-flex is-align-items-center">
-                    <input
-                    class="input mr-2 is-small"
-                    :value="fullLink"
-                    readonly
-                    ref="linkInput"
-                    style="max-width: 100%;"
-                    />
-                    <button class="button is-info is-light is-small" @click="copyLink">
-                        Copy
-                    </button>
+            <!-- Event Header Section -->
+            <div class="event-header mb-5">
+                <h1 class="title has-text-centered mb-3">{{ event.name }}</h1>
+                
+                <div class="event-meta columns is-vcentered">
+                    <div class="column is-half has-text-left">
+                        <p class="subtitle is-6 text-medium">📍{{ event.location }}</p>
+                        <p class="subtitle is-6 text-medium mb-1">{{ event.description }}</p>
+                    </div>
+                    <div class="box is-shadowless has-background-light p-3">
+                        <div class="is-flex is-align-items-center is-justify-content-flex-end">
+                            <p class="mr-3 has-text-dark has-text-weight-semibold">Shareable Link:</p>
+                            <input
+                            class="input mr-2 is-small"
+                            :value="fullLink"
+                            readonly
+                            ref="linkInput"
+                            style="max-width: 100%;"
+                            />
+                            <button class="button is-info is-light is-small" @click="copyLink">
+                                Copy
+                            </button>
+                        </div>
+                        <p v-if="copied" class="has-text-success mt-2">Link copied!</p>
+                    </div>
                 </div>
-                <p v-if="copied" class="has-text-success mt-2">Link copied!</p>
             </div>
 
             <!-- Join Section -->
@@ -206,6 +213,15 @@ input.input {
   align-items: center;
   min-height: 20vh;
   text-align: center;
+}
+
+.event-header {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+.text-medium {
+  color: #4f4f4f;
 }
 
 </style>
