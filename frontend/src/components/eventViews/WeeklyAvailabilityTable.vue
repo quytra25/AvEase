@@ -3,64 +3,64 @@
     <div class="availability-wrapper">
     <!-- USER INTERACTION TABLE -->
     <h2>Your Availability</h2>
-    <table class="availability-table">
-        <thead>
-        <tr>
-            <th class="header">Time</th>
-            <th v-for="day in selectedDays" :key="day" class="header">{{ formatDay(day) }}</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr v-for="time in timeSlots" :key="time">
-            <td class="time-label">{{ time }}</td>
-            <td
-            v-for="day in selectedDays"
-            :key="day + time"
-            :class="{ cell: true, selected: userSelections.has(`${day}_${time}`) }"
-            @mousedown="startDrag(day, time)"
-            @mouseenter="dragOver(day, time)"
-            @mouseup="endDrag"
-            @mouseleave="hoverKey = null"
-            @mouseover="hoverKey = `${day}_${time}`"
-            >
-            </td>
-        </tr>
-        </tbody>
-    </table>
+        <table class="availability-table">
+            <thead>
+                <tr>
+                    <th class="header">Time</th>
+                    <th v-for="day in selectedDays" :key="day" class="header">{{ formatDay(day) }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="time in timeSlots" :key="time">
+                    <td class="time-label">{{ time }}</td>
+                    <td
+                    v-for="day in selectedDays"
+                    :key="day + time"
+                    :class="{ cell: true, selected: userSelections.has(`${day}_${time}`) }"
+                    @mousedown="startDrag(day, time)"
+                    @mouseenter="dragOver(day, time)"
+                    @mouseup="endDrag"
+                    @mouseleave="hoverKey = null"
+                    @mouseover="hoverKey = `${day}_${time}`"
+                    >
+                    </td>
+                </tr>
+            </tbody>
+        </table>
 
-    <div class="submit-wrapper">
-        <button class="button is-link mt-4" @click="submitAvailability">
-        Submit My Availability
-        </button>
-    </div>
+        <div class="submit-wrapper">
+            <button class="button is-link mt-4" @click="submitAvailability">
+                Submit My Availability
+            </button>
+        </div>
 
-    <!-- HEATMAP TABLE -->
-    <h2>Group Availability</h2>
-    <table class="availability-table">
-        <thead>
-        <tr>
-            <th class="header">Time</th>
-            <th v-for="day in selectedDays" :key="day + '-group'" class="header">{{ formatDay(day) }}</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr v-for="time in timeSlots" :key="time + '-group'">
-            <td class="time-label">{{ time }}</td>
-            <td
-            v-for="day in selectedDays"
-            :key="day + time + '-group'"
-            :class="getGroupCellClass(day, time)"
-            @mouseover="hoverKey = `${day}_${time}`"
-            @mouseleave="hoverKey = null"
-            >
-            <div class="tooltip" v-if="hoverKey === `${day}_${time}`">
-                <div>Available ({{ getUsers(day, time, true).length }}): {{ getUsers(day, time, true).join(', ') || 'None' }}</div>
-                <div>Unavailable ({{ getUsers(day, time, false).length }}): {{ getUsers(day, time, false).join(', ') || 'None' }}</div>
-            </div>
-            </td>
-        </tr>
-        </tbody>
-    </table>
+        <!-- HEATMAP TABLE -->
+        <h2>Group Availability</h2>
+        <table class="availability-table">
+            <thead>
+                <tr>
+                    <th class="header">Time</th>
+                    <th v-for="day in selectedDays" :key="day + '-group'" class="header">{{ formatDay(day) }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="time in timeSlots" :key="time + '-group'">
+                    <td class="time-label">{{ time }}</td>
+                    <td
+                    v-for="day in selectedDays"
+                    :key="day + time + '-group'"
+                    :class="getGroupCellClass(day, time)"
+                    @mouseover="hoverKey = `${day}_${time}`"
+                    @mouseleave="hoverKey = null"
+                    >
+                    <div class="tooltip" v-if="hoverKey === `${day}_${time}`">
+                        <div>Available ({{ getUsers(day, time, true).length }}): {{ getUsers(day, time, true).join(', ') || 'None' }}</div>
+                        <div>Unavailable ({{ getUsers(day, time, false).length }}): {{ getUsers(day, time, false).join(', ') || 'None' }}</div>
+                    </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
     </div>
 </template>
 
@@ -94,15 +94,15 @@ const timeSlots = computed(() => {
     let d = new Date(0, 0, 0, sh, sm)
     const endTime = new Date(0, 0, 0, eh, em)
     while (d <= endTime) {
-    slots.push(d.toTimeString().slice(0, 5))
-    d.setMinutes(d.getMinutes() + 15)
+        slots.push(d.toTimeString().slice(0, 5))
+        d.setMinutes(d.getMinutes() + 15)
     }
     return slots
 })
 
 function formatDay(day) {
     return {
-    mon: 'Mon', tue: 'Tue', wed: 'Wed', thur: 'Thu', fri: 'Fri', sat: 'Sat', sun: 'Sun'
+        mon: 'Mon', tue: 'Tue', wed: 'Wed', thur: 'Thu', fri: 'Fri', sat: 'Sat', sun: 'Sun'
     }[day] || day
 }
 
@@ -137,8 +137,8 @@ function getGroupCellClass(day, time) {
     const key = `${day}_${time}`
     const count = availabilityMap.value[key]?.length || 0
     return {
-    cell: true,
-    [`level-${count}`]: count > 0
+        cell: true,
+        [`level-${count}`]: count > 0
     }
 }
 
@@ -160,51 +160,51 @@ async function submitAvailability() {
 
     loading.value = true
     try {
-    await api.getCsrfToken()
+        await api.getCsrfToken()
 
-    await Promise.all([
-        ...toAdd.map(k => {
-        const [day, time] = k.split('_')
-        return api.addWeeklyAvailability({
-            event: props.event.id,
-            participant: props.participantID,
-            selected_day: day,
-            selected_start_time: time
-        })
-        }),
-        ...toRemove.map(k => {
-        const [day, time] = k.split('_')
-        return api.deleteWeeklyAvailability({
-            event: props.event.id,
-            participant: props.participantID,
-            selected_day: day,
-            selected_start_time: time
-        })
-        })
-    ])
+        await Promise.all([
+            ...toAdd.map(k => {
+                const [day, time] = k.split('_')
+                return api.addWeeklyAvailability({
+                    event: props.event.id,
+                    participant: props.participantID,
+                    selected_day: day,
+                    selected_start_time: time
+                })
+            }),
+            ...toRemove.map(k => {
+                const [day, time] = k.split('_')
+                return api.deleteWeeklyAvailability({
+                    event: props.event.id,
+                    participant: props.participantID,
+                    selected_day: day,
+                    selected_start_time: time
+                })
+            })
+        ])
 
-    const { data } = await api.getEvent(props.event.link)
-    Object.assign(props.event, data)
-    updateMap()
-    syncUserSelections()
-    toast.success('Availability updated!')
+        const { data } = await api.getEvent(props.event.link)
+        Object.assign(props.event, data)
+        updateMap()
+        syncUserSelections()
+        toast.success('Availability updated!')
     } catch (err) {
-    console.error('Failed to submit availability', err)
-    toast.error('Error submitting availability.')
+        console.error('Failed to submit availability', err)
+        toast.error('Error submitting availability.')
     } finally {
-    loading.value = false
+        loading.value = false
     }
 }
 
 function updateMap() {
     const map = {}
     props.event?.participants?.forEach(p => {
-    p.weekly_availabilities?.forEach(a => {
-        const time = a.selected_start_time.toString().slice(0, 5)
-        const key = `${a.selected_day}_${time}`
-        if (!map[key]) map[key] = []
-        map[key].push(p)
-    })
+        p.weekly_availabilities?.forEach(a => {
+            const time = a.selected_start_time.toString().slice(0, 5)
+            const key = `${a.selected_day}_${time}`
+            if (!map[key]) map[key] = []
+            map[key].push(p)
+        })
     })
     availabilityMap.value = { ...map }
 }
@@ -212,11 +212,11 @@ function updateMap() {
 function syncUserSelections() {
     const mine = []
     props.event.participants?.forEach(p => {
-    if (p.id !== props.participantID) return
-    p.weekly_availabilities?.forEach(a => {
-        const time = a.selected_start_time.toString().slice(0, 5)
-        mine.push(`${a.selected_day}_${time}`)
-    })
+        if (p.id !== props.participantID) return
+        p.weekly_availabilities?.forEach(a => {
+            const time = a.selected_start_time.toString().slice(0, 5)
+            mine.push(`${a.selected_day}_${time}`)
+        })
     })
     userSelections.value = new Set(mine)
 }
@@ -229,8 +229,8 @@ onMounted(() => {
 watch(
     () => props.event.participants,
     () => {
-    updateMap()
-    syncUserSelections()
+        updateMap()
+        syncUserSelections()
     },
     { deep: true }
 )
