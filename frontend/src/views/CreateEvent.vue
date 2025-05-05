@@ -24,22 +24,14 @@
                     <button class="button" :class="{ 'is-link': subType === 'multi_day' }" @click="selectSubType('multi_day')">Multi Day</button>
                 </div>
                 <div v-else class="buttons has-addons mb-4">
-                    <button class="button" :class="{ 'is-link': subType === 'rsvp_single' }" @click="selectSubType('rsvp_single')">
-                        Single Day
-                    </button>
-                    <button class="button" :class="{ 'is-link': subType === 'rsvp_multi' }" @click="selectSubType('rsvp_multi')">
-                        Multi Day
-                    </button>
+                    <button class="button" :class="{ 'is-link': subType === 'rsvp_single' }" @click="selectSubType('rsvp_single')">Single Day</button>
+                    <button class="button" :class="{ 'is-link': subType === 'rsvp_multi' }" @click="selectSubType('rsvp_multi')">Multi Day</button>
                 </div>
             </div>
 
             <!-- Form -->
             <div class="event-form">
-                <component
-                :is="currentFormComponent"
-                :formData="formData"
-                @submit="onSubmit"
-                />
+                <component :is="currentFormComponent" :formData="formData" @submit="onSubmit" />
             </div>
         </div>
     </section>
@@ -51,8 +43,8 @@ import { useRouter } from 'vue-router'
 import api from '@/services/api'
 import { useToast } from 'vue-toastification'
 import Spinner from '@/components/Spinner.vue'
+import { currentUser } from '@/composables/useAuth'
 
-// Dynamic forms
 import AvailabilityWeeklyForm from '@/components/forms/AvailabilityWeeklyForm.vue'
 import AvailabilitySingleDayForm from '@/components/forms/AvailabilitySingleDayForm.vue'
 import AvailabilityMultiDayForm from '@/components/forms/AvailabilityMultiDayForm.vue'
@@ -64,7 +56,6 @@ const router = useRouter()
 const toast = useToast()
 const loading = ref(false)
 
-// UI-only type breakdown
 const mainType = ref('availability_match')
 const subType = ref('weekly')
 
@@ -136,6 +127,13 @@ async function onSubmit(validatedPayload) {
     try {
         await api.getCsrfToken()
         const { data: created } = await api.createEvent(validatedPayload)
+
+        // Auto join as participant if user is authenticated
+        if (currentUser.value?.email) {
+            const { data: participant } = await api.joinEvent(created.id)
+            localStorage.setItem(`participant_${created.link}`, participant.id)
+        }
+
         toast.success('Event created!')
         router.push({ name: 'EventDetail', params: { link: created.link } })
     } catch (err) {
@@ -148,4 +146,4 @@ async function onSubmit(validatedPayload) {
 </script>
 
 <style scoped>
-</style>
+</style>  

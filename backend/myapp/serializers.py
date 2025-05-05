@@ -146,15 +146,13 @@ class WeeklyAvailabilitySerializer(serializers.ModelSerializer):
     class Meta:
         model = WeeklyAvailability
         fields = [
-            'id', 'participant', 'mon_selected', 'tue_selected', 'wed_selected', 
-            'thur_selected', 'fri_selected', 'sat_selected', 'sun_selected',
-            'start_time', 'end_time'
+            'id', 'participant', 'selected_day', 'selected_start_time'
         ]
 
 class DateTimeAvailabilitySerializer(serializers.ModelSerializer):
     class Meta:
         model = DateTimeAvailability
-        fields = ['id', 'participant', 'selected_date', 'start_time', 'end_time']
+        fields = ['id', 'participant', 'selected_date', 'selected_start_time']
 
 class DateAvailabilitySerializer(serializers.ModelSerializer):
     class Meta:
@@ -172,11 +170,24 @@ class ParticipantSerializer(serializers.ModelSerializer):
     user_first_name = serializers.CharField(source='user.first_name', read_only=True)
     user_last_name = serializers.CharField(source='user.last_name', read_only=True)
     user_email = serializers.EmailField(source='user.email', read_only=True)
+    
+    weekly_availabilities = WeeklyAvailabilitySerializer(many=True, read_only=True)
+    datetime_availabilities = DateTimeAvailabilitySerializer(many=True, read_only=True)
+    date_availabilities = DateAvailabilitySerializer(many=True, read_only=True)
+    rsvp_statuses = RsvpStatusSerializer(many=True, read_only=True)
 
     class Meta:
         model = Participant
-        fields = ['id', 'user', 'user_first_name', 'user_last_name', 'user_email', 'event']
-        read_only_fields = ['id', 'user', 'user_first_name', 'user_last_name', 'user_email']
+        fields = [
+            'id', 'user', 'user_first_name', 'user_last_name', 'user_email', 'event',
+            'weekly_availabilities', 'datetime_availabilities',
+            'date_availabilities', 'rsvp_statuses'
+        ]
+        read_only_fields = [
+            'id', 'user', 'user_first_name', 'user_last_name', 'user_email',
+            'weekly_availabilities', 'datetime_availabilities',
+            'date_availabilities', 'rsvp_statuses'
+        ]
 
     def create(self, validated_data):
         validated_data['user'] = self.context['request'].user

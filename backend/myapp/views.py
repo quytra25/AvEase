@@ -140,6 +140,24 @@ class WeeklyAvailabilityViewSet(viewsets.ModelViewSet):
     serializer_class = WeeklyAvailabilitySerializer
     permission_classes = [permissions.AllowAny]
 
+    @action(detail=False, methods=['delete'], url_path='remove')
+    def remove_availability(self, request):
+        data = request.data
+        participant_id = data.get('participant')
+        selected_day = data.get('selected_day')
+        selected_start_time = data.get('selected_start_time')
+
+        try:
+            availability = WeeklyAvailability.objects.get(
+                participant_id=participant_id,
+                selected_day=selected_day,
+                selected_start_time=selected_start_time
+            )
+            availability.delete()
+            return Response({'message': 'Deleted'}, status=status.HTTP_204_NO_CONTENT)
+        except WeeklyAvailability.DoesNotExist:
+            return Response({'error': 'Availability not found'}, status=status.HTTP_404_NOT_FOUND)
+
 class DateTimeAvailabilityViewSet(viewsets.ModelViewSet):
     queryset = DateTimeAvailability.objects.all()
     serializer_class = DateTimeAvailabilitySerializer

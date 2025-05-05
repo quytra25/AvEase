@@ -70,10 +70,24 @@ export default {
   },
 
   // --- Availabilities ---
-  addAvailability(payload) {
-    return api.post('availabilities/', payload);
+  addWeeklyAvailability(payload) {
+    return api.post('weekly-availabilities/', payload);
   },
-
+  deleteWeeklyAvailability(payload) {
+    return api.delete('weekly-availabilities/remove/', {
+        data: payload
+    });
+  },  
+  addDateAvailability(payload) {
+    return api.post('date-availabilities/', payload);
+  },
+  addDateTimeAvailability(payload) {
+    return api.post('datetime-availabilities/', payload);
+  },
+  addRsvpStatus(payload) {
+    return api.post('rsvp-statuses/', payload);
+  },
+  
   // --- Login/Sign-up ---
   login(payload) {
     return api.post('login/', payload)

@@ -160,34 +160,24 @@ class Participant(models.Model):
 # ---------------------------------------------------
 # AVAILABILITY MODELS
 # ---------------------------------------------------
-
 class WeeklyAvailability(models.Model):
-    participant = models.ForeignKey(
-        Participant,
-        on_delete=models.CASCADE,
-        related_name='weekly_availabilities'
-    )
-    mon_selected = models.BooleanField(default=False)
-    tue_selected = models.BooleanField(default=False)
-    wed_selected = models.BooleanField(default=False)
-    thur_selected = models.BooleanField(default=False)
-    fri_selected = models.BooleanField(default=False)
-    sat_selected = models.BooleanField(default=False)
-    sun_selected = models.BooleanField(default=False)
-    start_time = models.TimeField()
-    end_time = models.TimeField()
+    participant = models.ForeignKey(Participant, on_delete=models.CASCADE, related_name='weekly_availabilities')
+    selected_day = models.CharField(max_length=10, default='mon', choices=[
+        ('mon', 'Monday'),
+        ('tue', 'Tuesday'),
+        ('wed', 'Wednesday'),
+        ('thur', 'Thursday'),
+        ('fri', 'Friday'),
+        ('sat', 'Saturday'),
+        ('sun', 'Sunday'),
+    ])
+    selected_start_time = models.TimeField()
 
     class Meta:
-        unique_together = ['participant', 'start_time', 'end_time']
-        verbose_name_plural = 'Weekly availabilities'
+        unique_together = ('participant', 'selected_day', 'selected_start_time')
 
     def __str__(self):
-        days = [day for day, selected in zip(
-            ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-            [self.mon_selected, self.tue_selected, self.wed_selected, self.thur_selected,
-             self.fri_selected, self.sat_selected, self.sun_selected]
-        ) if selected]
-        return f"{self.participant.user.email} - {', '.join(days)} ({self.start_time}-{self.end_time})"
+        return f"{self.participant} - {self.selected_day} at {self.selected_start_time.strftime('%H:%M')}"
 
 
 class DateTimeAvailability(models.Model):
@@ -197,15 +187,14 @@ class DateTimeAvailability(models.Model):
         related_name='datetime_availabilities'
     )
     selected_date = models.DateField()
-    start_time = models.TimeField()
-    end_time = models.TimeField()
+    selected_start_time = models.TimeField()
 
     class Meta:
-        unique_together = ['participant', 'selected_date', 'start_time', 'end_time']
+        unique_together = ['participant', 'selected_date', 'selected_start_time']
         verbose_name_plural = 'Date-time availabilities'
 
     def __str__(self):
-        return f"{self.participant.user.email} - {self.selected_date} ({self.start_time}-{self.end_time})"
+        return f"{self.participant} - {self.selected_date} at ({self.selected_start_time}.strftime('%H:%M'))"
 
 
 class DateAvailability(models.Model):
@@ -221,7 +210,7 @@ class DateAvailability(models.Model):
         verbose_name_plural = 'Date availabilities'
 
     def __str__(self):
-        return f"{self.participant.user.email} - {self.selected_date}"
+        return f"{self.participant} - {self.selected_date}"
 
 
 class RsvpStatus(models.Model):
@@ -242,4 +231,4 @@ class RsvpStatus(models.Model):
         verbose_name_plural = 'RSVP statuses'
 
     def __str__(self):
-        return f"{self.participant.user.email} - {self.get_status_display()}"
+        return f"{self.participant.user} - {self.status}"

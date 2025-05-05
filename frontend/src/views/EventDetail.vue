@@ -10,7 +10,7 @@
 
             <!-- Shareable Link -->
             <div class="box is-shadowless has-background-light">
-                <p class="mb-2"><strong>Shareable Link:</strong></p>
+                <p class="mb-2 has-text-dark has-text-weight-semibold">Shareable Link:</p>
                 <div class="is-flex is-align-items-center">
                     <input
                     class="input mr-2 is-small"
@@ -59,7 +59,7 @@
 
             <!-- Event Interaction -->
             <div v-else>
-                <component :is="currentEventComponent" :event="event" :participantID="participantID" />
+                <component :is="currentEventComponent" :event="event" :participantID="participantID" :participants="event.participants" />
             </div>
 
             <!-- Participants -->
@@ -67,12 +67,9 @@
                 <h2 class="title is-5">Participants</h2>
                 <ul class="content">
                     <li v-for="p in event.participants" :key="p.id">
-                        {{ p.user_first_name }} {{ p.user_last_name || '(Guest)' }} —
+                        {{ p.user_first_name }} {{ p.user_last_name || '(Guest)' }}
                         <span v-if="event.event_type.startsWith('rsvp')">
-                            {{ p.availabilities[0]?.rsvp_status || 'No Response' }}
-                        </span>
-                        <span v-else>
-                            {{ p.availabilities.length }} slot(s)
+                            — {{ p.availabilities[0]?.rsvp_status || 'No Response' }}
                         </span>
                     </li>
                 </ul>
@@ -201,4 +198,5 @@ input.input {
     border: 1px solid #ccc;
     border-radius: 4px;
 }
+
 </style>
