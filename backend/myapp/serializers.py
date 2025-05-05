@@ -12,17 +12,24 @@ import uuid
 class EventSerializer(serializers.ModelSerializer):
     event_details = serializers.SerializerMethodField()
     participants = serializers.SerializerMethodField()
+    coordinator_name = serializers.SerializerMethodField()
 
     class Meta:
         model = Event
         fields = [
-            'id', 'name', 'description', 'location', 'link',
+            'id', 'name', 'description', 'location', 'link', 'coordinator_name',
             'coordinator', 'event_type', 'event_details', 'participants'
         ]
         extra_kwargs = {
             'description': {'required': False},
             'location': {'required': False}
         }
+
+    def get_coordinator_name(self, obj):
+        if obj.coordinator:
+            full_name = f"{obj.coordinator.first_name} {obj.coordinator.last_name}".strip()
+            return full_name if full_name else obj.coordinator.email
+        return "Unknown"
 
     def get_event_details(self, obj):
         if obj.event_type == 'weekly':

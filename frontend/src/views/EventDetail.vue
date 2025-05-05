@@ -12,6 +12,8 @@
                 <div class="event-meta columns is-vcentered">
                     <div class="column is-half has-text-left">
                         <p class="subtitle is-6 text-medium">📍{{ event.location }}</p>
+                        <p class="has-text-grey is-italic">Created by: {{ event.coordinator_name }}</p>
+                        <br>
                         <p class="subtitle is-6 text-medium mb-1">{{ event.description }}</p>
                     </div>
                     <div class="box is-shadowless has-background-light p-3">
