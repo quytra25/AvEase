@@ -27,10 +27,10 @@
             </div>
 
             <!-- Join Section -->
-            <div v-if="!joined" class="box has-background-light">
+            <div v-if="!joined" class="box has-background-light join-wrapper">
             <!-- Logged-in user -->
             <div v-if="isAuthenticated">
-                <button class="button is-link" @click="join">Join this event</button>
+                <button class="button is-link is-large px-5 py-4" @click="join">Join this event</button>
             </div>
 
             <!-- Guest -->
@@ -197,6 +197,15 @@ input.input {
     padding: 0.5rem;
     border: 1px solid #ccc;
     border-radius: 4px;
+}
+
+.join-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 20vh;
+  text-align: center;
 }
 
 </style>
