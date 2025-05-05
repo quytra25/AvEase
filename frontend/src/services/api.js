@@ -77,13 +77,18 @@ export default {
     return api.delete('weekly-availabilities/remove/', {
         data: payload
     });
-  },  
+  },
+  getEventAvailabilities(link) {
+    return api.get(`events/${link}/availabilities/`);
+  },
   addDateAvailability(payload) {
     return api.post('date-availabilities/', payload);
   },
-  addDateTimeAvailability(payload) {
-    return api.post('datetime-availabilities/', payload);
-  },
+  deleteDateAvailabilities(payload) {
+    return api.delete('date-availabilities/remove/', {
+        data: payload
+    });
+  },  
   addRsvpStatus(payload) {
     return api.post('rsvp-statuses/', payload);
   },

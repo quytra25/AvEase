@@ -2,9 +2,8 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from .models import (
     CustomUser, Event, Participant,
-    WeeklyEventDetails, SingleDayEventDetails, MultiDayEventDetails,
-    RsvpSingleDayEventDetails, RsvpMultiDayEventDetails,
-    WeeklyAvailability, DateTimeAvailability, DateAvailability, RsvpStatus
+    WeeklyEventDetails, DateAvailabilityEventDetails, RsvpSingleDayEventDetails, RsvpMultiDayEventDetails,
+    WeeklyAvailability, DateAvailability, RsvpStatus
 )
 
 # Custom User Admin
@@ -31,12 +30,8 @@ class WeeklyEventDetailsInline(admin.StackedInline):
     model = WeeklyEventDetails
     extra = 0
 
-class SingleDayEventDetailsInline(admin.StackedInline):
-    model = SingleDayEventDetails
-    extra = 0
-
-class MultiDayEventDetailsInline(admin.StackedInline):
-    model = MultiDayEventDetails
+class DateAvailabilityEventDetailsInline(admin.StackedInline):
+    model = DateAvailabilityEventDetails
     extra = 0
 
 class RsvpSingleDayEventDetailsInline(admin.StackedInline):
@@ -57,9 +52,8 @@ class EventAdmin(admin.ModelAdmin):
         if not obj:
             return []
         inlines = {
-            'weekly': WeeklyEventDetailsInline,
-            'single_day': SingleDayEventDetailsInline,
-            'multi_day': MultiDayEventDetailsInline,
+            'weekly_match': WeeklyEventDetailsInline,
+            'date_match': DateAvailabilityEventDetailsInline,
             'rsvp_single': RsvpSingleDayEventDetailsInline,
             'rsvp_multi': RsvpMultiDayEventDetailsInline,
         }
@@ -68,6 +62,5 @@ class EventAdmin(admin.ModelAdmin):
 
 admin.site.register(Participant)
 admin.site.register(WeeklyAvailability)
-admin.site.register(DateTimeAvailability)
 admin.site.register(DateAvailability)
 admin.site.register(RsvpStatus)

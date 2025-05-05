@@ -3,8 +3,7 @@ from rest_framework.routers import DefaultRouter
 from .views import (
     # ViewSets
     EventViewSet, ParticipantViewSet,
-    WeeklyAvailabilityViewSet, DateTimeAvailabilityViewSet,
-    DateAvailabilityViewSet, RsvpStatusViewSet,
+    WeeklyAvailabilityViewSet, DateAvailabilityViewSet, RsvpStatusViewSet,
 
     # Auth & CSRF Views
     csrf_token_view, login_view, signup_view, logout_view, current_user_view,
@@ -18,7 +17,6 @@ router = DefaultRouter()
 router.register(r'events', EventViewSet)
 router.register(r'participants', ParticipantViewSet)
 router.register(r'weekly-availabilities', WeeklyAvailabilityViewSet)
-router.register(r'datetime-availabilities', DateTimeAvailabilityViewSet)
 router.register(r'date-availabilities', DateAvailabilityViewSet)
 router.register(r'rsvp-statuses', RsvpStatusViewSet)
 

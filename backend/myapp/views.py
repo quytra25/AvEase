@@ -9,14 +9,12 @@ from django.contrib.auth import authenticate, login, logout
 
 from .models import (
     Event, Participant, CustomUser,
-    WeeklyAvailability, DateTimeAvailability,
-    DateAvailability, RsvpStatus
+    WeeklyAvailability, DateAvailability, RsvpStatus
 )
 
 from .serializers import (
     EventSerializer, ParticipantSerializer, ParticipantGuestSerializer,
-    WeeklyAvailabilitySerializer, DateTimeAvailabilitySerializer,
-    DateAvailabilitySerializer, RsvpStatusSerializer
+    WeeklyAvailabilitySerializer, DateAvailabilitySerializer, RsvpStatusSerializer
 )
 
 
@@ -105,23 +103,22 @@ class EventViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     @action(detail=True, methods=['get'])
-    def availabilities(self, request, pk=None):
+    def availabilities(self, request, **kwargs):
         event = self.get_object()
         participant_ids = event.participants.values_list('id', flat=True)
+
         return Response({
-            'weekly': WeeklyAvailabilitySerializer(
+            'weekly_match': WeeklyAvailabilitySerializer(
                 WeeklyAvailability.objects.filter(participant_id__in=participant_ids), many=True
             ).data,
-            'datetime': DateTimeAvailabilitySerializer(
-                DateTimeAvailability.objects.filter(participant_id__in=participant_ids), many=True
-            ).data,
-            'date': DateAvailabilitySerializer(
+            'date_match': DateAvailabilitySerializer(
                 DateAvailability.objects.filter(participant_id__in=participant_ids), many=True
             ).data,
             'rsvp': RsvpStatusSerializer(
                 RsvpStatus.objects.filter(participant_id__in=participant_ids), many=True
             ).data,
         })
+
 
 
 # Participant ViewSet
@@ -158,15 +155,16 @@ class WeeklyAvailabilityViewSet(viewsets.ModelViewSet):
         except WeeklyAvailability.DoesNotExist:
             return Response({'error': 'Availability not found'}, status=status.HTTP_404_NOT_FOUND)
 
-class DateTimeAvailabilityViewSet(viewsets.ModelViewSet):
-    queryset = DateTimeAvailability.objects.all()
-    serializer_class = DateTimeAvailabilitySerializer
-    permission_classes = [permissions.AllowAny]
-
 class DateAvailabilityViewSet(viewsets.ModelViewSet):
     queryset = DateAvailability.objects.all()
     serializer_class = DateAvailabilitySerializer
     permission_classes = [permissions.AllowAny]
+
+    @action(detail=False, methods=['post'], url_path='remove')
+    def delete(self, request):
+        participant_id = request.data.get('participant')
+        DateAvailability.objects.filter(participant_id=participant_id).delete()
+        return Response({'status': 'deleted'})
 
 class RsvpStatusViewSet(viewsets.ModelViewSet):
     queryset = RsvpStatus.objects.all()

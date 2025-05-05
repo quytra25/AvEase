@@ -37,33 +37,33 @@
 
             <!-- Join Section -->
             <div v-if="!joined" class="box has-background-light join-wrapper">
-            <!-- Logged-in user -->
-            <div v-if="isAuthenticated">
-                <button class="button is-link is-large px-5 py-4" @click="join">Join this event</button>
-            </div>
+                <!-- Logged-in user -->
+                <div v-if="isAuthenticated">
+                    <button class="button is-link is-large px-5 py-4" @click="join">Join this event</button>
+                </div>
 
-            <!-- Guest -->
-            <div v-else>
-                <label class="label">Enter your name to join as guest</label>
-                <div class="field has-addons">
-                    <div class="control is-expanded">
-                        <input
-                        v-model="guestName"
-                        class="input"
-                        placeholder="Your name"
-                        />
-                    </div>
-                    <div class="control">
-                        <button
-                        class="button is-primary"
-                        @click="joinAsGuest"
-                        :disabled="!guestName"
-                        >
-                            Join
-                        </button>
+                <!-- Guest -->
+                <div v-else>
+                    <label class="label">Enter your name to join as guest</label>
+                    <div class="field has-addons">
+                        <div class="control is-expanded">
+                            <input
+                            v-model="guestName"
+                            class="input"
+                            placeholder="Your name"
+                            />
+                        </div>
+                        <div class="control">
+                            <button
+                            class="button is-primary"
+                            @click="joinAsGuest"
+                            :disabled="!guestName"
+                            >
+                                Join
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
             </div>
 
             <!-- Event Interaction -->
@@ -96,8 +96,7 @@ import { currentUser, isAuthenticated } from '@/composables/useAuth'
 import Spinner from '@/components/Spinner.vue'
 import ErrorBanner from '@/components/ErrorBanner.vue'
 import WeeklyAvailabilityTable from '@/components/eventViews/WeeklyAvailabilityTable.vue'
-import SingleDayAvailabilityTable from '@/components/eventViews/SingleDayAvailabilityTable.vue'
-import MultiDayAvailabilityTable from '@/components/eventViews/MultiDayAvailabilityTable.vue'
+import DateAvailabilityTable from '@/components/eventViews/DateAvailabilityTable.vue'
 import RsvpEventPanel from '@/components/eventViews/RsvpEventPanel.vue'
 
 const route = useRoute()
@@ -115,9 +114,8 @@ const fullLink = computed(() => `${window.location.origin}/events/${event.value?
 
 const currentEventComponent = computed(() => {
     const type = event.value?.event_type
-    if (type === 'weekly') return WeeklyAvailabilityTable
-    if (type === 'single_day') return SingleDayAvailabilityTable
-    if (type === 'multi_day') return MultiDayAvailabilityTable
+    if (type === 'weekly_match') return WeeklyAvailabilityTable
+    if (type === 'date_match') return DateAvailabilityTable
     if (['rsvp_single', 'rsvp_multi'].includes(type)) return RsvpEventPanel
     return null
 })
@@ -138,18 +136,18 @@ onMounted(async () => {
         event.value = data
 
         // Guest rejoin
-        const savedID = localStorage.getItem(`participant_${link}`)
-        if (savedID) {
-            const match = data.participants.find(p => p.id === parseInt(savedID))
-            if (match) {
-                participantID.value = match.id
-                joined.value = true
-                if (data.event_type.startsWith('rsvp')) {
-                    rsvp.value = match.availabilities[0]?.status || ''
-                }
-                return
-            }
-        }
+        // const savedID = localStorage.getItem(`participant_${link}`)
+        // if (savedID) {
+        //     const match = data.participants.find(p => p.id === parseInt(savedID))
+        //     if (match) {
+        //         participantID.value = match.id
+        //         joined.value = true
+        //         if (data.event_type.startsWith('rsvp')) {
+        //             rsvp.value = match.availabilities[0]?.status || ''
+        //         }
+        //         return
+        //     }
+        // }
 
         // Authenticated user rejoin
         if (isAuthenticated.value && currentUser.value?.email) {

@@ -19,9 +19,8 @@
             <!-- Sub-Type Toggle -->
             <div class="toggle-group">
                 <div v-if="mainType === 'availability_match'" class="buttons has-addons mb-4">
-                    <button class="button" :class="{ 'is-link': subType === 'weekly' }" @click="selectSubType('weekly')">Weekly</button>
-                    <button class="button" :class="{ 'is-link': subType === 'single_day' }" @click="selectSubType('single_day')">Single Day</button>
-                    <button class="button" :class="{ 'is-link': subType === 'multi_day' }" @click="selectSubType('multi_day')">Multi Day</button>
+                    <button class="button" :class="{ 'is-link': subType === 'weekly_match' }" @click="selectSubType('weekly_match')">Weekly</button>
+                    <button class="button" :class="{ 'is-link': subType === 'date_match' }" @click="selectSubType('date_match')">Date</button>
                 </div>
                 <div v-else class="buttons has-addons mb-4">
                     <button class="button" :class="{ 'is-link': subType === 'rsvp_single' }" @click="selectSubType('rsvp_single')">Single Day</button>
@@ -46,8 +45,7 @@ import Spinner from '@/components/Spinner.vue'
 import { currentUser } from '@/composables/useAuth'
 
 import AvailabilityWeeklyForm from '@/components/forms/AvailabilityWeeklyForm.vue'
-import AvailabilitySingleDayForm from '@/components/forms/AvailabilitySingleDayForm.vue'
-import AvailabilityMultiDayForm from '@/components/forms/AvailabilityMultiDayForm.vue'
+import AvailabilityDateForm from '@/components/forms/AvailabilityDateForm.vue'
 import RsvpSingleDayForm from '@/components/forms/RsvpSingleDayForm.vue'
 import RsvpMultiDayForm from '@/components/forms/RsvpMultiDayForm.vue'
 
@@ -57,7 +55,7 @@ const toast = useToast()
 const loading = ref(false)
 
 const mainType = ref('availability_match')
-const subType = ref('weekly')
+const subType = ref('weekly_match')
 
 // Reactive form state
 const formData = reactive({
@@ -94,7 +92,7 @@ watch(subType, v => {
 // Type selection handlers
 function selectMainType(type) {
     mainType.value = type
-    subType.value = type === 'availability_match' ? 'weekly' : 'rsvp_single'
+    subType.value = type === 'availability_match' ? 'weekly_match' : 'rsvp_single'
 }
 function selectSubType(type) {
     subType.value = type
@@ -103,9 +101,8 @@ function selectSubType(type) {
 // Dynamic form component loader
 const currentFormComponent = computed(() => {
     switch (subType.value) {
-        case 'weekly': return AvailabilityWeeklyForm
-        case 'single_day': return AvailabilitySingleDayForm
-        case 'multi_day': return AvailabilityMultiDayForm
+        case 'weekly_match': return AvailabilityWeeklyForm
+        case 'date_match': return AvailabilityDateForm
         case 'rsvp_single': return RsvpSingleDayForm
         case 'rsvp_multi': return RsvpMultiDayForm
         default: return null
@@ -126,6 +123,7 @@ async function onSubmit(validatedPayload) {
     loading.value = true
     try {
         await api.getCsrfToken()
+        console.log('Submitting event with payload:', validatedPayload)
         const { data: created } = await api.createEvent(validatedPayload)
 
         // Auto join as participant if user is authenticated
