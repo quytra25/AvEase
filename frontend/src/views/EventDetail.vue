@@ -199,41 +199,41 @@ input.input {
 }
 
 .join-wrapper {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  min-height: 20vh;
-  text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 20vh;
+    text-align: center;
 }
 
 .event-header {
-  padding-top: 1rem;
-  padding-bottom: 1rem;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
 }
 
 .text-medium {
-  color: #4f4f4f;
+    color: #4f4f4f;
 }
 
 .event-header-box {
-  border: 1px solid #d8e6f2;
-  border-radius: 12px;
-  background-color: #f9fbfd;
+    border: 1px solid #d8e6f2;
+    border-radius: 12px;
+    background-color: #f9fbfd;
 }
 
 .share-link-wrapper {
-  margin-top: 1rem;
-  flex-direction: row;
-  gap: 0.5rem;
+    margin-top: 1rem;
+    flex-direction: row;
+    gap: 0.5rem;
 }
 
 .section {
-  padding-top: 0rem !important;
+    padding-top: 0rem !important;
 }
 
 .container {
-  margin-top: 0 !important;
+    margin-top: 0 !important;
 }
 
 </style>

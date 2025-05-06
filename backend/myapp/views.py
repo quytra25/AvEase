@@ -1,7 +1,8 @@
 from rest_framework import viewsets, permissions, status, generics
+from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import action, api_view, permission_classes
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from django.utils.decorators import method_decorator
 from django.http import JsonResponse
@@ -79,6 +80,18 @@ def current_user_view(request):
         })
     return JsonResponse({'user': None})
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def my_events(request):
+    user = request.user
+    created_events = Event.objects.filter(coordinator=user)
+    joined_events = Event.objects.filter(participants__user=user).distinct()
+
+    data = {
+        'created': EventSerializer(created_events, many=True).data,
+        'joined': EventSerializer(joined_events, many=True).data,
+    }
+    return Response(data)
 
 # Guest Join
 @method_decorator(csrf_exempt, name='dispatch')
@@ -118,7 +131,25 @@ class EventViewSet(viewsets.ModelViewSet):
                 RsvpStatus.objects.filter(participant_id__in=participant_ids), many=True
             ).data,
         })
+    
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if request.user != instance.coordinator:
+            return Response({'detail': 'You are not allowed to delete this event.'}, status=status.HTTP_403_FORBIDDEN)
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
+class MyEventsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        created_events = Event.objects.filter(coordinator=user)
+        joined_events = Event.objects.filter(participants__user=user).exclude(coordinator=user).distinct()
+        return Response({
+            'created': EventSerializer(created_events, many=True).data,
+            'joined': EventSerializer(joined_events, many=True).data
+        })
 
 
 # Participant ViewSet

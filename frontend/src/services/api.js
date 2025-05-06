@@ -27,12 +27,12 @@ api.interceptors.request.use(config => {
 });
 
 export default {
-  // --- CSRF ---
+  // CSRF
   getCsrfToken() {
     return api.get('csrf/');
   },
 
-  // --- Events ---
+  // Events
   listEvents() {
     return api.get('events/');
   },
@@ -42,11 +42,16 @@ export default {
   getEvent(link) {
     return api.get(`events/${link}/`);
   },
+  getMyEvents() {
+    return api.get('my-events/');
+  },
   updateEvent(id, data) {
     return api.patch(`events/${id}/`, data);
   },
-
-  // --- Participants ---
+  deleteEvent(id) {
+    return api.delete(`${id}`)
+  },
+  // Participants
   joinEvent(eventID) {
     return api.post('participants/', { event: eventID });
   },
@@ -69,7 +74,7 @@ export default {
     );
   },
 
-  // --- Availabilities ---
+  // Availabilities
   addWeeklyAvailability(payload) {
     return api.post('weekly-availabilities/', payload);
   },
@@ -93,7 +98,7 @@ export default {
     return api.post('rsvp-statuses/', payload);
   },
   
-  // --- Login/Sign-up ---
+  // Login/Sign-up
   login(payload) {
     return api.post('login/', payload)
   },

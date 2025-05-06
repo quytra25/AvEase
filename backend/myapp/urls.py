@@ -6,7 +6,7 @@ from .views import (
     WeeklyAvailabilityViewSet, DateAvailabilityViewSet, RsvpStatusViewSet,
 
     # Auth & CSRF Views
-    csrf_token_view, login_view, signup_view, logout_view, current_user_view,
+    csrf_token_view, login_view, signup_view, logout_view, current_user_view, my_events,
 
     # Guest participant creation
     ParticipantGuestCreateView,
@@ -35,4 +35,5 @@ urlpatterns = [
     path('login/', login_view, name='login'),
     path('logout/', logout_view, name='logout'),
     path('current-user/', current_user_view, name='current-user'),
+    path('my-events/', my_events, name='my-events')
 ]

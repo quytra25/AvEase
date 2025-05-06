@@ -144,4 +144,7 @@ async function onSubmit(validatedPayload) {
 </script>
 
 <style scoped>
+.event-form {
+    margin-top: 1rem !important;
+}
 </style>  

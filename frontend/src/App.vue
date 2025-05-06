@@ -57,4 +57,12 @@ async function handleLogout() {
     font-weight: bold;
     background-color: rgba(255, 255, 255, 0.1);
 }
+
+.section {
+  padding-top: 1rem !important;
+}
+
+.container {
+  margin-top: 0 !important;
+}
 </style>
