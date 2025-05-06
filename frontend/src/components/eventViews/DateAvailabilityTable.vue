@@ -1,5 +1,4 @@
 <template>
-    <Spinner v-if="loading" />
     <div class="availability-wrapper">
         <div class="calendar-header">
             <button v-if="currentMonthIndex > 0" @click="prevMonth" class="nav-btn">←</button>
