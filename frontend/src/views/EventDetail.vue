@@ -68,9 +68,9 @@
 
             <!-- Participants -->
             <div v-if="!event.event_type.startsWith('rsvp')" class="mt-6">
-                <h2 class="title is-5">Participants</h2>
+                <h2 class="title is-5">Participants:</h2>
                 <ul class="content">
-                    <li v-for="p in event.participants" :key="p.id">
+                    <li class="has-text-centered" v-for="p in event.participants" :key="p.id">
                         {{ p.user_first_name }} {{ p.user_last_name || '(Guest)' }}
                     </li>
                 </ul>
