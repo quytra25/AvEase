@@ -56,17 +56,11 @@
         <div v-if="!local.is_all_day" class="time-row">
             <div>
                 <label class="label">Start time *</label>
-                <select v-model="local.start_time" class="input">
-                    <option disabled value="">Select time</option>
-                    <option v-for="time in timeOptions" :key="'start-' + time" :value="time">{{ time }}</option>
-                </select>
+                <input v-model="local.start_time" type="time" class="input" />
             </div>
             <div>
                 <label class="label">End time *</label>
-                <select v-model="local.end_time" class="input">
-                    <option disabled value="">Select time</option>
-                    <option v-for="time in timeOptions" :key="'end-' + time" :value="time">{{ time }}</option>
-                </select>
+                <input v-model="local.end_time" type="time" class="input" />
             </div>
         </div>
 

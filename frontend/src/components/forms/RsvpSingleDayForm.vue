@@ -44,17 +44,11 @@
         <div v-if="!local.is_all_day" class="time-row">
             <div>
                 <label class="label">Start time *</label>
-                <select v-model="local.start_time" class="input">
-                    <option disabled value="">Select time</option>
-                    <option v-for="time in timeOptions" :key="'start-' + time" :value="time">{{ time }}</option>
-                </select>
+                <input v-model="local.start_time" type="time" class="input" />
             </div>
             <div>
                 <label class="label">End time *</label>
-                <select v-model="local.end_time" class="input">
-                    <option disabled value="">Select time</option>
-                    <option v-for="time in timeOptions" :key="'end-' + time" :value="time">{{ time }}</option>
-                </select>
+                <input v-model="local.end_time" type="time" class="input" />
             </div>
         </div>
 
@@ -80,15 +74,6 @@ function autoResize(e) {
     const el = e.target
     el.style.height = 'auto'
     el.style.height = el.scrollHeight + 'px'
-}
-
-const timeOptions = []
-for (let h = 0; h < 24; h++) {
-    for (let m = 0; m < 60; m += 15) {
-        const hh = h.toString().padStart(2, '0')
-        const mm = m.toString().padStart(2, '0')
-        timeOptions.push(`${hh}:${mm}`)
-    }
 }
 
 function submit() {
