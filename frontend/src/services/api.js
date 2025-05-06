@@ -45,8 +45,8 @@ export default {
   getMyEvents() {
     return api.get('my-events/');
   },
-  updateEvent(id, data) {
-    return api.patch(`events/${id}/`, data);
+  updateEvent(link, data) {
+    return api.patch(`events/${link}/`, data);
   },
   deleteEvent(id) {
     return api.delete(`${id}`)
@@ -55,7 +55,9 @@ export default {
   joinEvent(eventID) {
     return api.post('participants/', { event: eventID });
   },
-
+  removeParticipant(participantID) {
+    return axios.delete(`/api/participants/${participantID}/`)
+  },
   joinEventAsGuest(eventID, payload) {
     const csrfToken = getCsrfTokenFromCookie();
     return axios.post(

@@ -59,7 +59,7 @@ onMounted(async () => {
 })
 
 function editEvent(event) {
-    router.push({ name: 'EditEvent', params: { id: event.id } })
+    router.push({ name: 'EditEvent', params: { link: event.link } })
 }
 
 async function deleteEvent(event) {

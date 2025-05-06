@@ -113,6 +113,42 @@ class EventSerializer(serializers.ModelSerializer):
                 is_all_day=is_all_day
             )
         return event
+    
+    def update(self, instance, validated_data):
+        instance.name = validated_data.get('name', instance.name)
+        instance.description = validated_data.get('description', instance.description)
+        instance.location = validated_data.get('location', instance.location)
+        instance.save()
+
+        event_type = instance.event_type
+        data = self.context['request'].data
+
+        if event_type == 'rsvp_single' and hasattr(instance, 'rsvp_single_details'):
+            details = instance.rsvp_single_details
+            details.date = data.get('date', details.date)
+            details.is_all_day = data.get('is_all_day', details.is_all_day)
+            if details.is_all_day:
+                details.start_time = None
+                details.end_time = None
+            else:
+                details.start_time = data.get('start_time', details.start_time)
+                details.end_time = data.get('end_time', details.end_time)
+            details.save()
+
+        elif event_type == 'rsvp_multi' and hasattr(instance, 'rsvp_multi_details'):
+            details = instance.rsvp_multi_details
+            details.start_date = data.get('start_date', details.start_date)
+            details.end_date = data.get('end_date', details.end_date)
+            details.is_all_day = data.get('is_all_day', details.is_all_day)
+            if details.is_all_day:
+                details.start_time = None
+                details.end_time = None
+            else:
+                details.start_time = data.get('start_time', details.start_time)
+                details.end_time = data.get('end_time', details.end_time)
+            details.save()
+
+        return instance
 
 # --- Event Details Serializers (for nested use) ---
 
