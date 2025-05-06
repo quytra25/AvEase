@@ -61,7 +61,6 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
-import Spinner from '@/components/Spinner.vue'
 import api from '@/services/api'
 import { useToast } from 'vue-toastification'
 
