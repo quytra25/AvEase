@@ -1,68 +1,73 @@
 <template>
     <Spinner v-if="loading" />
     <div class="availability-wrapper">
-        
-    <h2>Your Availability</h2>
-        <table class="availability-table">
-            <thead>
-                <tr>
-                    <th class="header">Time</th>
-                    <th v-for="day in selectedDays" :key="day" class="header">{{ formatDay(day) }}</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="time in timeSlots" :key="time">
-                    <td class="time-label">{{ time }}</td>
-                    <td
-                    v-for="day in selectedDays"
-                    :key="day + time"
-                    :class="{ cell: true, selected: userSelections.has(`${day}_${time}`) }"
-                    @mousedown="startDrag(day, time)"
-                    @mouseenter="dragOver(day, time)"
-                    @mouseup="endDrag"
-                    @mouseleave="hoverKey = null"
-                    @mouseover="hoverKey = `${day}_${time}`"
-                    >
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+        <div class="card availability-card">
+            <div class="card-content">
+                <h2 class="availability-title has-text-centered">Your Availability</h2>
+                <table class="availability-table">
+                    <thead>
+                        <tr>
+                            <th class="header">Time</th>
+                            <th v-for="day in selectedDays" :key="day" class="header">{{ formatDay(day) }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="time in timeSlots" :key="time">
+                            <td class="time-label">{{ time }}</td>
+                            <td
+                            v-for="day in selectedDays"
+                            :key="day + time"
+                            :class="{ cell: true, selected: userSelections.has(`${day}_${time}`) }"
+                            @mousedown="startDrag(day, time)"
+                            @mouseenter="dragOver(day, time)"
+                            @mouseup="endDrag"
+                            @mouseleave="hoverKey = null"
+                            @mouseover="hoverKey = `${day}_${time}`"
+                            />
+                        </tr>
+                    </tbody>
+                </table>
 
-        <div class="submit-wrapper">
-            <button class="button is-link mt-4" @click="submitAvailability">
-                Submit My Availability
-            </button>
+                <div class="submit-wrapper mt-4">
+                    <button class="button is-link" @click="submitAvailability">
+                    Submit My Availability
+                    </button>
+                </div>
+            </div>
         </div>
 
-        <!-- HEATMAP TABLE -->
-        <h2>Group Availability</h2>
-        <table class="availability-table">
-            <thead>
-                <tr>
-                    <th class="header">Time</th>
-                    <th v-for="day in selectedDays" :key="day + '-group'" class="header">{{ formatDay(day) }}</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="time in timeSlots" :key="time + '-group'">
-                    <td class="time-label">{{ time }}</td>
-                    <td
-                    v-for="day in selectedDays"
-                    :key="day + time + '-group'"
-                    :class="getGroupCellClass(day, time)"
-                    @mouseover="hoverKey = `${day}_${time}`"
-                    @mouseleave="hoverKey = null"
-                    >
-                    <div class="tooltip" v-if="hoverKey === `${day}_${time}`">
-                        <div>Available ({{ getUsers(day, time, true).length }}): {{ getUsers(day, time, true).join(', ') || 'None' }}</div>
-                        <div>Unavailable ({{ getUsers(day, time, false).length }}): {{ getUsers(day, time, false).join(', ') || 'None' }}</div>
-                    </div>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+        <div class="card availability-card">
+            <div class="card-content">
+                <h2 class="availability-title has-text-centered">Group Availability</h2>
+                <table class="availability-table">
+                    <thead>
+                        <tr>
+                            <th class="header">Time</th>
+                            <th v-for="day in selectedDays" :key="day + '-group'" class="header">{{ formatDay(day) }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="time in timeSlots" :key="time + '-group'">
+                            <td class="time-label">{{ time }}</td>
+                            <td
+                            v-for="day in selectedDays"
+                            :key="day + time + '-group'"
+                            :class="getGroupCellClass(day, time)"
+                            @mouseover="hoverKey = `${day}_${time}`"
+                            @mouseleave="hoverKey = null"
+                            >
+                                <div class="tooltip" v-if="hoverKey === `${day}_${time}`">
+                                    <div>Available ({{ getUsers(day, time, true).length }}): {{ getUsers(day, time, true).join(', ') || 'None' }}</div>
+                                    <div>Unavailable ({{ getUsers(day, time, false).length }}): {{ getUsers(day, time, false).join(', ') || 'None' }}</div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
-</template>
+</template>  
 
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
@@ -294,4 +299,20 @@ watch(
 .submit-wrapper {
     text-align: center;
 }
+
+.card.availability-card {
+  background-color: #f8fbff;
+  border-radius: 10px;
+  border: 1px solid #d1e3f0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  padding: 1.5rem;
+}
+
+.availability-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  color: #1d3557;
+}
+
 </style>
