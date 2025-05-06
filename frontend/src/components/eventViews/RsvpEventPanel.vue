@@ -1,6 +1,6 @@
 <template>
     <div class="rsvp-panel">
-        <p class="event-date" v-if="isSingleDay">
+        <p class="event-date" v-if="event.event_type === 'rsvp_single'">
             Date: {{ formattedDate }}
         </p>
 
