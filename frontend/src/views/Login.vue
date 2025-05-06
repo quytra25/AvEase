@@ -1,53 +1,53 @@
 <template>
     <Spinner v-if="loading" />
     <div class="auth-container">
-    <h1>{{ isLogin ? 'Login' : 'Sign Up' }}</h1>
-    <form @submit.prevent="isLogin ? handleLogin() : handleSignup()">
-        <div class="field">
-        <label>Email</label>
-        <input v-model="email" type="email" placeholder="e.g. user@example.com" />
-        </div>
+        <h1>{{ isLogin ? 'Login' : 'Sign Up' }}</h1>
+        <form @submit.prevent="isLogin ? handleLogin() : handleSignup()">
+            <div class="field">
+                <label>Email</label>
+                <input v-model="email" type="email" placeholder="e.g. user@example.com" />
+            </div>
 
-        <div v-if="!isLogin" class="field-row">
-        <div class="field">
-            <label>First Name</label>
-            <input v-model="firstName" type="text" placeholder="First Name" />
-        </div>
-        <div class="field">
-            <label>Last Name</label>
-            <input v-model="lastName" type="text" placeholder="Last Name" />
-        </div>
-        </div>
+            <div v-if="!isLogin" class="field-row">
+                <div class="field">
+                    <label>First Name</label>
+                    <input v-model="firstName" type="text" placeholder="First Name" />
+                </div>
+                <div class="field">
+                    <label>Last Name</label>
+                    <input v-model="lastName" type="text" placeholder="Last Name" />
+                </div>
+            </div>
 
-        <div class="field password-wrapper">
-        <label>Password</label>
-        <div class="password-input">
-            <input :type="showPassword ? 'text' : 'password'" v-model="password" placeholder="Enter your password" />
-            <span class="toggle-icon" @click="showPassword = !showPassword">
-            <i class="fas" :class="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
-            </span>
-        </div>
-        </div>
+            <div class="field password-wrapper">
+                <label>Password</label>
+                <div class="password-input">
+                    <input :type="showPassword ? 'text' : 'password'" v-model="password" placeholder="Enter your password" />
+                    <span class="toggle-icon" @click="showPassword = !showPassword">
+                        <i class="fas" :class="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+                    </span>
+                </div>
+            </div>
 
-        <div v-if="!isLogin" class="field password-wrapper">
-        <label>Confirm Password</label>
-        <div class="password-input">
-            <input :type="showPassword ? 'text' : 'password'" v-model="confirmPassword" placeholder="Confirm your password" />
-            <span class="toggle-icon" @click="showPassword = !showPassword">
-            <i class="fas" :class="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
-            </span>
-        </div>
-        </div>
+            <div v-if="!isLogin" class="field password-wrapper">
+                <label>Confirm Password</label>
+                <div class="password-input">
+                    <input :type="showPassword ? 'text' : 'password'" v-model="confirmPassword" placeholder="Confirm your password" />
+                    <span class="toggle-icon" @click="showPassword = !showPassword">
+                        <i class="fas" :class="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+                    </span>
+                </div>
+            </div>
 
-        <button type="submit" class="btn is-primary" :disabled="loading">
-        {{ isLogin ? 'Login' : 'Create Account' }}
-        </button>
+            <button type="submit" class="btn is-primary" :disabled="loading">
+                {{ isLogin ? 'Login' : 'Create Account' }}
+            </button>
 
-        <p class="switch-mode">
-        <span>{{ isLogin ? 'New user?' : 'Already have an account?' }}</span>
-        <a href="#" @click.prevent="isLogin = !isLogin">{{ isLogin ? 'Sign up' : 'Login' }}</a>
-        </p>
-    </form>
+            <p class="switch-mode">
+                <span>{{ isLogin ? 'New user?' : 'Already have an account?' }}</span>
+                <a href="#" @click.prevent="isLogin = !isLogin">{{ isLogin ? 'Sign up' : 'Login' }}</a>
+            </p>
+        </form>
     </div>
 </template>
 
