@@ -6,34 +6,29 @@
     <div v-else class="section">
         <div class="container">
             <!-- Event Header Section -->
-            <div class="event-header mb-5">
-                <h1 class="title has-text-centered mb-3">{{ event.name }}</h1>
-                
-                <div class="event-meta columns is-vcentered">
-                    <div class="column is-half has-text-left">
-                        <p class="subtitle is-6 text-medium">📍{{ event.location }}</p>
-                        <p class="has-text-grey is-italic">Created by: {{ event.coordinator_name }}</p>
-                        <br>
-                        <p class="subtitle is-6 text-medium mb-1">{{ event.description }}</p>
-                    </div>
-                    <div class="box is-shadowless has-background-light p-3">
-                        <div class="is-flex is-align-items-center is-justify-content-flex-end">
-                            <p class="mr-3 has-text-dark has-text-weight-semibold">Shareable Link:</p>
-                            <input
-                            class="input mr-2 is-small"
-                            :value="fullLink"
-                            readonly
-                            ref="linkInput"
-                            style="max-width: 100%;"
-                            />
-                            <button class="button is-info is-light is-small" @click="copyLink">
-                                Copy
-                            </button>
-                        </div>
-                        <p v-if="copied" class="has-text-success mt-2">Link copied!</p>
-                    </div>
+            <div class="event-header-box box has-background-light has-text-centered p-5 mb-5">
+                <h1 class="title is-3 has-text-weight-semibold mb-3">{{ event.name }}</h1>
+
+                <p v-if="event.location" class="is-size-6 mb-2">📍 {{ event.location }}</p>
+                <p v-if="event.description" class="is-size-6 has-text-grey mb-2">{{ event.description }}</p>
+                <p class="is-size-7 has-text-grey is-italic mb-4">Created by: {{ event.coordinator_name }}</p>
+
+                <div class="share-link-wrapper is-flex is-justify-content-center is-align-items-center is-flex-wrap-wrap">
+                    <p class="mr-2 has-text-dark has-text-weight-semibold">Shareable Link:</p>
+                    <input
+                    class="input is-small is-flex-grow-1 mr-2"
+                    style="max-width: 300px;"
+                    :value="fullLink"
+                    readonly
+                    ref="linkInput"
+                    />
+                    <button class="button is-info is-light is-small" @click="copyLink">
+                        Copy
+                    </button>
                 </div>
+                <p v-if="copied" class="has-text-success mt-2">Link copied!</p>
             </div>
+
 
             <!-- Join Section -->
             <div v-if="!joined" class="box has-background-light join-wrapper">
@@ -72,14 +67,11 @@
             </div>
 
             <!-- Participants -->
-            <div class="mt-6">
+            <div v-if="!event.event_type.startsWith('rsvp')" class="mt-6">
                 <h2 class="title is-5">Participants</h2>
                 <ul class="content">
                     <li v-for="p in event.participants" :key="p.id">
                         {{ p.user_first_name }} {{ p.user_last_name || '(Guest)' }}
-                        <span v-if="event.event_type.startsWith('rsvp')">
-                            — {{ p.availabilities[0]?.rsvp_status || 'No Response' }}
-                        </span>
                     </li>
                 </ul>
             </div>
@@ -158,7 +150,7 @@ onMounted(async () => {
                 participantID.value = existing.id
                 joined.value = true
                 if (data.event_type.startsWith('rsvp')) {
-                    rsvp.value = existing.availabilities[0]?.status || ''
+                    rsvp.value = existing.rsvp_status?.[0]?.status || ''
                 }
             }
         }
@@ -222,6 +214,26 @@ input.input {
 
 .text-medium {
   color: #4f4f4f;
+}
+
+.event-header-box {
+  border: 1px solid #d8e6f2;
+  border-radius: 12px;
+  background-color: #f9fbfd;
+}
+
+.share-link-wrapper {
+  margin-top: 1rem;
+  flex-direction: row;
+  gap: 0.5rem;
+}
+
+.section {
+  padding-top: 0rem !important;
+}
+
+.container {
+  margin-top: 0 !important;
 }
 
 </style>

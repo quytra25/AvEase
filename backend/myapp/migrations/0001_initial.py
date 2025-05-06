@@ -99,7 +99,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('status', models.CharField(choices=[('available', 'Available'), ('unavailable', 'Unavailable'), ('tentative', 'Tentative'), ('no_response', 'No Response')], default='no_response', max_length=15)),
-                ('participant', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='rsvp_statuses', to='myapp.participant')),
+                ('participant', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='rsvp_status', to='myapp.participant')),
             ],
             options={
                 'verbose_name_plural': 'RSVP statuses',

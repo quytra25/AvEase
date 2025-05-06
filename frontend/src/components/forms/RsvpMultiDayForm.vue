@@ -104,6 +104,8 @@ for (let h = 0; h < 24; h++) {
 }
 
 function submit() {
+    const today = new Date().toISOString().split('T')[0]
+    
     if (!local.name.trim()) {
         toast.error('Event name is required.')
         return
@@ -119,6 +121,11 @@ function submit() {
         return
     }
 
+    if (local.start_date < today) {
+        toast.error('Start date must be today or later.')
+        return
+    }
+
     if (!local.is_all_day) {
         if (!local.start_time || !local.end_time) {
             toast.error('Start and end times are required.')
@@ -130,6 +137,14 @@ function submit() {
         }
     }
 
-    emit('submit', { ...local })
+    const payload = { ...local }
+
+    if (payload.is_all_day) {
+        delete payload.start_time
+        delete payload.end_time
+    }
+
+    emit('submit', payload)
+
 }
 </script>

@@ -56,6 +56,7 @@ function autoResize(e) {
 
 function submit() {
     const today = new Date().toISOString().split('T')[0]  // Format as 'YYYY-MM-DD
+    
     if (!local.name.trim()) {
         toast.error('Event name is required.')
         return

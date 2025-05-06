@@ -170,3 +170,16 @@ class RsvpStatusViewSet(viewsets.ModelViewSet):
     queryset = RsvpStatus.objects.all()
     serializer_class = RsvpStatusSerializer
     permission_classes = [permissions.AllowAny]
+
+    def create(self, request, *args, **kwargs):
+        participant = request.data.get('participant')
+        status_value = request.data.get('status')
+
+        try:
+            instance = RsvpStatus.objects.get(participant=participant)
+            instance.status = status_value
+            instance.save()
+            serializer = self.get_serializer(instance)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except RsvpStatus.DoesNotExist:
+            return super().create(request, *args, **kwargs)

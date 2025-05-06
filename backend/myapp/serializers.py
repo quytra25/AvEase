@@ -88,20 +88,29 @@ class EventSerializer(serializers.ModelSerializer):
                 end_date=data.get('end_date'),
             )
         elif event_type == 'rsvp_single':
+            is_all_day = data.get('is_all_day', False)
+            start_time = data.get('start_time') if not is_all_day else None
+            end_time = data.get('end_time') if not is_all_day else None
+
             RsvpSingleDayEventDetails.objects.create(
                 event=event,
                 date=data.get('date'),
-                start_time=data.get('start_time'),
-                end_time=data.get('end_time'),
-                is_all_day=data.get('is_all_day', False)
+                start_time=start_time,
+                end_time=end_time,
+                is_all_day=is_all_day
             )
         elif event_type == 'rsvp_multi':
+            is_all_day = data.get('is_all_day', False)
+            start_time = data.get('start_time') if not is_all_day else None
+            end_time = data.get('end_time') if not is_all_day else None
+            
             RsvpMultiDayEventDetails.objects.create(
                 event=event,
                 start_date=data.get('start_date'),
                 end_date=data.get('end_date'),
-                start_time=data.get('start_time'),
-                end_time=data.get('end_time'),
+                start_time=start_time,
+                end_time=end_time,
+                is_all_day=is_all_day
             )
         return event
 
@@ -122,10 +131,42 @@ class RsvpSingleDayEventDetailsSerializer(serializers.ModelSerializer):
         model = RsvpSingleDayEventDetails
         exclude = ['event']
 
+    def validate(self, data):
+        is_all_day = data.get('is_all_day', False)
+        start_time = data.get('start_time')
+        end_time = data.get('end_time')
+
+        if not is_all_day:
+            if not start_time or not end_time:
+                raise serializers.ValidationError("Start and end times are required for non-all-day events.")
+            if start_time >= end_time:
+                raise serializers.ValidationError("Start time must be earlier than end time.")
+        else:
+            data['start_time'] = None
+            data['end_time'] = None
+
+        return data
+
 class RsvpMultiDayEventDetailsSerializer(serializers.ModelSerializer):
     class Meta:
         model = RsvpMultiDayEventDetails
         exclude = ['event']
+
+    def validate(self, data):
+        is_all_day = data.get('is_all_day', False)
+        start_time = data.get('start_time')
+        end_time = data.get('end_time')
+
+        if not is_all_day:
+            if not start_time or not end_time:
+                raise serializers.ValidationError("Start and end times are required for non-all-day events.")
+            if start_time >= end_time:
+                raise serializers.ValidationError("Start time must be earlier than end time.")
+        else:
+            data['start_time'] = None
+            data['end_time'] = None
+
+        return data
 
 # --- Availability Serializers ---
 
@@ -155,17 +196,17 @@ class ParticipantSerializer(serializers.ModelSerializer):
     
     weekly_availabilities = WeeklyAvailabilitySerializer(many=True, read_only=True)
     date_availabilities = DateAvailabilitySerializer(many=True, read_only=True)
-    rsvp_statuses = RsvpStatusSerializer(many=True, read_only=True)
+    rsvp_status = RsvpStatusSerializer(read_only=True)
 
     class Meta:
         model = Participant
         fields = [
             'id', 'user', 'user_first_name', 'user_last_name', 'user_email', 'event',
-            'weekly_availabilities', 'date_availabilities', 'rsvp_statuses'
+            'weekly_availabilities', 'date_availabilities', 'rsvp_status'
         ]
         read_only_fields = [
             'id', 'user', 'user_first_name', 'user_last_name', 'user_email',
-            'weekly_availabilities', 'date_availabilities', 'rsvp_statuses'
+            'weekly_availabilities', 'date_availabilities', 'rsvp_status'
         ]
 
     def create(self, validated_data):

@@ -92,6 +92,8 @@ for (let h = 0; h < 24; h++) {
 }
 
 function submit() {
+    const today = new Date().toISOString().split('T')[0]
+
     if (!local.name.trim()) {
         toast.error('Event name is required.')
         return
@@ -99,6 +101,11 @@ function submit() {
 
     if (!local.date) {
         toast.error('Please select a date.')
+        return
+    }
+
+    if (local.date < today) {
+        toast.error('Date must be today or later.')
         return
     }
 

@@ -101,8 +101,8 @@ class RsvpSingleDayEventDetails(models.Model):
     """RSVP Single day event details"""
     event = models.OneToOneField(Event, on_delete=models.CASCADE, related_name='rsvp_single_details')
     date = models.DateField()
-    start_time = models.TimeField()
-    end_time = models.TimeField()
+    start_time = models.TimeField(null=True, blank=True)
+    end_time = models.TimeField(null=True, blank=True)
     is_all_day = models.BooleanField(default=False)
     
     def __str__(self):
@@ -113,8 +113,8 @@ class RsvpMultiDayEventDetails(models.Model):
     event = models.OneToOneField(Event, on_delete=models.CASCADE, related_name='rsvp_multi_details')
     start_date = models.DateField()
     end_date = models.DateField()
-    start_time = models.TimeField()
-    end_time = models.TimeField()
+    start_time = models.TimeField(null=True, blank=True)
+    end_time = models.TimeField(null=True, blank=True)
     is_all_day = models.BooleanField(default=False)
     
     def __str__(self):
@@ -175,10 +175,10 @@ class DateAvailability(models.Model):
 
 
 class RsvpStatus(models.Model):
-    participant = models.ForeignKey(
+    participant = models.OneToOneField(
         Participant,
         on_delete=models.CASCADE,
-        related_name='rsvp_statuses'
+        related_name='rsvp_status'
     )
     RSVP_CHOICES = [
         ('available', 'Available'),
