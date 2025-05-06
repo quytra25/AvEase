@@ -59,10 +59,10 @@ async function handleLogout() {
 }
 
 .section {
-  padding-top: 1rem !important;
+    padding-top: 1rem !important;
 }
 
 .container {
-  margin-top: 0 !important;
+    margin-top: 0 !important;
 }
 </style>

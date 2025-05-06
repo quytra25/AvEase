@@ -1,63 +1,62 @@
 <template>
     <Spinner v-if="loading" />
     <div class="availability-wrapper">
-    <div class="calendar-header">
-        <button v-if="currentMonthIndex > 0" @click="prevMonth" class="nav-btn">←</button>
-        <h2 class="calendar-title">{{ monthYearLabel }}</h2>
-        <button v-if="currentMonthIndex < monthGroups.length - 1" @click="nextMonth" class="nav-btn">→</button>
-    </div>
+        <div class="calendar-header">
+            <button v-if="currentMonthIndex > 0" @click="prevMonth" class="nav-btn">←</button>
+            <h2 class="calendar-title">{{ monthYearLabel }}</h2>
+            <button v-if="currentMonthIndex < monthGroups.length - 1" @click="nextMonth" class="nav-btn">→</button>
+        </div>
 
-    <!-- User Selection Calendar -->
-    <div class="availability-block">
-        <h3 class="availability-title">Your Availability</h3>
-        <div class="calendar-grid">
-        <div v-for="day in weekdays" :key="day" class="calendar-header-cell">{{ day }}</div>
-        <div
-            v-for="(cell, index) in currentMonthDates"
-            :key="'user-' + index"
-            class="calendar-cell"
-            :class="{ selected: userSelections.has(cell.date), inactive: !cell.isCurrentMonth }"
-            @mousedown.prevent="startDrag(cell.date)"
-            @mouseover="dragSelect(cell.date)"
-            @mouseup="stopDrag"
-        >
-            {{ cell.day }}
-        </div>
-        </div>
-        <div class="submit-wrapper">
-        <button class="button is-link mt-4" @click="submitAvailability">
-            Submit My Availability
-        </button>
-        </div>
-    </div>
-
-    <!-- Group Heatmap Calendar -->
-    <div class="availability-block">
-        <h3 class="availability-title">Group Availability</h3>
-        <div class="calendar-grid">
-        <div v-for="day in weekdays" :key="day + '-header'" class="calendar-header-cell">{{ day }}</div>
-        <div
-            v-for="(cell, index) in currentMonthDates"
-            :key="'group-' + index"
-            :class="{
-            'calendar-cell': true,
-            'group': true,
-            'inactive': !cell.isCurrentMonth || !availableDateSet.has(cell.date)
-            }"
-            :style="cell.isCurrentMonth && availableDateSet.has(cell.date) ? getCellStyle(cell.date) : {}"
-            @mouseover="hoveredDate = cell.date"
-            @mouseleave="hoveredDate = null"
-        >
-            <template v-if="cell.isCurrentMonth && availableDateSet.has(cell.date)">
-            {{ cell.day }}
-            <div class="tooltip" v-if="hoveredDate === cell.date">
-                <div>Available ({{ getUsers(cell.date, true).length }}): {{ getUsers(cell.date, true).join(', ') }}</div>
-                <div>Unavailable ({{ getUsers(cell.date, false).length }}): {{ getUsers(cell.date, false).join(', ') }}</div>
+        <div class="availability-block">
+            <h3 class="availability-title">Your Availability</h3>
+            <div class="calendar-grid">
+                <div v-for="day in weekdays" :key="day" class="calendar-header-cell">{{ day }}</div>
+                <div
+                    v-for="(cell, index) in currentMonthDates"
+                    :key="'user-' + index"
+                    class="calendar-cell"
+                    :class="{ selected: userSelections.has(cell.date), inactive: !cell.isCurrentMonth }"
+                    @mousedown.prevent="startDrag(cell.date)"
+                    @mouseover="dragSelect(cell.date)"
+                    @mouseup="stopDrag"
+                >
+                    {{ cell.day }}
+                </div>
             </div>
-            </template>
+            <div class="submit-wrapper">
+                <button class="button is-link mt-4" @click="submitAvailability">
+                    Submit My Availability
+                </button>
+            </div>
         </div>
+
+        <!-- Group Heatmap Calendar -->
+        <div class="availability-block">
+            <h3 class="availability-title">Group Availability</h3>
+            <div class="calendar-grid">
+                <div v-for="day in weekdays" :key="day + '-header'" class="calendar-header-cell">{{ day }}</div>
+                <div
+                v-for="(cell, index) in currentMonthDates"
+                :key="'group-' + index"
+                :class="{
+                'calendar-cell': true,
+                'group': true,
+                'inactive': !cell.isCurrentMonth || !availableDateSet.has(cell.date)
+                }"
+                :style="cell.isCurrentMonth && availableDateSet.has(cell.date) ? getCellStyle(cell.date) : {}"
+                @mouseover="hoveredDate = cell.date"
+                @mouseleave="hoveredDate = null"
+                >
+                <template v-if="cell.isCurrentMonth && availableDateSet.has(cell.date)">
+                    {{ cell.day }}
+                    <div class="tooltip" v-if="hoveredDate === cell.date">
+                        <div>Available ({{ getUsers(cell.date, true).length }}): {{ getUsers(cell.date, true).join(', ') }}</div>
+                        <div>Unavailable ({{ getUsers(cell.date, false).length }}): {{ getUsers(cell.date, false).join(', ') }}</div>
+                    </div>
+                </template>
+                </div>
+            </div>
         </div>
-    </div>
     </div>
 </template>
 
@@ -87,8 +86,8 @@ const getDaysInRange = (startDate, endDate) => {
     const end = new Date(endDate)
     const days = []
     while (start <= end) {
-    days.push(new Date(start))
-    start.setDate(start.getDate() + 1)
+        days.push(new Date(start))
+        start.setDate(start.getDate() + 1)
     }
     return days
 }
@@ -103,9 +102,9 @@ const availableDateSet = computed(() => new Set(availableDates.value.map(d => d.
 const monthGroups = computed(() => {
     const groups = {}
     availableDates.value.forEach(date => {
-    const key = `${date.getFullYear()}-${date.getMonth()}`
-    if (!groups[key]) groups[key] = []
-    groups[key].push(date)
+        const key = `${date.getFullYear()}-${date.getMonth()}`
+        if (!groups[key]) groups[key] = []
+        groups[key].push(date)
     })
     return Object.values(groups)
 })
@@ -120,16 +119,16 @@ const currentMonthDates = computed(() => {
     const cells = []
 
     for (let i = 0; i < firstDay; i++) {
-    cells.push({ day: '', date: '', isCurrentMonth: false })
+        cells.push({ day: '', date: '', isCurrentMonth: false })
     }
 
     monthDates.forEach(date => {
-    const dateStr = date.toISOString().split('T')[0]
-    cells.push({
-        day: date.getDate(),
-        date: dateStr,
-        isCurrentMonth: true
-    })
+        const dateStr = date.toISOString().split('T')[0]
+        cells.push({
+            day: date.getDate(),
+            date: dateStr,
+            isCurrentMonth: true
+        })
     })
 
     return cells
@@ -167,7 +166,7 @@ function toggleSelection(date) {
 const participantNameMap = computed(() => {
     const map = {}
     props.participants.forEach(p => {
-    map[p.id] = p.user_first_name || 'Guest'
+        map[p.id] = p.user_first_name || 'Guest'
     })
     return map
 })
@@ -182,18 +181,18 @@ function getCellStyle(date) {
     const count = getUsers(date, true).length
     const alpha = Math.min(count / props.participants.length, 1)
     return {
-    backgroundColor: `rgba(100, 149, 237, ${alpha})`
+        backgroundColor: `rgba(100, 149, 237, ${alpha})`
     }
 }
 
 function updateMap() {
     const map = {}
     props.participants.forEach(p => {
-    p.date_availabilities?.forEach(a => {
-        const date = a.selected_date
-        if (!map[date]) map[date] = []
-        map[date].push(p)
-    })
+        p.date_availabilities?.forEach(a => {
+            const date = a.selected_date
+            if (!map[date]) map[date] = []
+            map[date].push(p)
+        })
     })
     dateAvailabilityMap.value = { ...map }
 }
@@ -201,11 +200,11 @@ function updateMap() {
 function syncUserSelections() {
     const mine = []
     props.participants.forEach(p => {
-    if (p.id === props.participantID) {
-        p.date_availabilities?.forEach(a => {
-        mine.push(a.selected_date)
-        })
-    }
+        if (p.id === props.participantID) {
+            p.date_availabilities?.forEach(a => {
+                mine.push(a.selected_date)
+            })
+        }
     })
     userSelections.value = new Set(mine)
 }
@@ -213,25 +212,25 @@ function syncUserSelections() {
 async function submitAvailability() {
     loading.value = true
     try {
-    await api.getCsrfToken()
-    await api.deleteDateAvailabilities({ participant: props.participantID })
+        await api.getCsrfToken()
+        await api.deleteDateAvailabilities({ participant: props.participantID })
 
-    const payload = Array.from(userSelections.value).map(date => ({
-        participant: props.participantID,
-        selected_date: date
-    }))
-    await Promise.all(payload.map(entry => api.addDateAvailability(entry)))
+        const payload = Array.from(userSelections.value).map(date => ({
+            participant: props.participantID,
+            selected_date: date
+        }))
+        await Promise.all(payload.map(entry => api.addDateAvailability(entry)))
 
-    const { data } = await api.getEvent(props.event.link)
-    Object.assign(props.event, data)
-    updateMap()
-    syncUserSelections()
-    toast.success('Availability submitted!')
+        const { data } = await api.getEvent(props.event.link)
+        Object.assign(props.event, data)
+        updateMap()
+        syncUserSelections()
+        toast.success('Availability submitted!')
     } catch (err) {
-    console.error('Submit failed:', err)
-    toast.error('Failed to submit availability.')
+        console.error('Submit failed:', err)
+        toast.error('Failed to submit availability.')
     } finally {
-    loading.value = false
+        loading.value = false
     }
 }
 
@@ -243,8 +242,8 @@ onMounted(() => {
 watch(
     () => props.event.participants,
     () => {
-    updateMap()
-    syncUserSelections()
+        updateMap()
+        syncUserSelections()
     },
     { deep: true }
 )

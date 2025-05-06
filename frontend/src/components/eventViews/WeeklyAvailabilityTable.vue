@@ -1,7 +1,7 @@
 <template>
     <Spinner v-if="loading" />
     <div class="availability-wrapper">
-    <!-- USER INTERACTION TABLE -->
+        
     <h2>Your Availability</h2>
         <table class="availability-table">
             <thead>
